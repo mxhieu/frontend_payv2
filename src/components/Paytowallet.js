@@ -196,7 +196,7 @@ export default class Paytowallet extends Component {
                                 status: true,
                                 message: responseData.messages
                             }
-                        })
+                        });
                     } else {
                         this.setState({
                             processingResult: {
@@ -238,7 +238,7 @@ export default class Paytowallet extends Component {
             // call api
             api.call('GET', endPoint)
                 .then((response) => {
-                    console.log(response)
+                    window.location.href = response.data.data.link;
                 })
                 .catch((err) => {
                     console.log(err)
@@ -324,7 +324,7 @@ export default class Paytowallet extends Component {
                                     <div className="message-head clearfix handle-acc-role">
                                         <div className="user-detail">
                                             <h5 className="handle">Tài khoản : {this.state.username}</h5>
-                                            <h6 className="handle">Số dư : 0 <u>đ</u></h6>
+                                            <h6 className="handle">Số dư : { this.state.balance } <u>đ</u></h6>
                                             <input type="hidden" defaultValue={0} name="balance"/>
                                             <input type="hidden" defaultValue={771866} name="id_user" id="id_user"/>
                                             <input type="hidden" defaultValue={0} name="amount" id="amount"/>
