@@ -4,7 +4,7 @@ import Paytowallet from "../../components/Paytowallet"
 export default class PaytowalletPage extends Component {
     render() {
         return (
-            <Paytowallet></Paytowallet>
+            <Paytowallet match={this.props.match}></Paytowallet>
         )
     }
 }
