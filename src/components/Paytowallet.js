@@ -29,6 +29,7 @@ export default class Paytowallet extends Component {
             serversList: [],
             isDisableSelectServers: true,
             payItem: {},
+            inProcessing: false,
             processingResult: {
                 status: null,
                 message: ''
@@ -168,6 +169,10 @@ export default class Paytowallet extends Component {
         });
 
         if (await this.validatePayByCard()) {
+            // set inProcessing mode
+            this.setState({
+                inProcessing: true
+            });
             // get md5
             const md5 = require('md5');
             // get pay item
@@ -208,6 +213,12 @@ export default class Paytowallet extends Component {
                 })
                 .catch((err) => {
                     console.log(err)
+                })
+                .finally(() => {
+                    // release inProcessing mode
+                    this.setState({
+                        inProcessing: false
+                    });
                 });
         }
     };
@@ -223,6 +234,10 @@ export default class Paytowallet extends Component {
         });
 
         if (await this.validatePayByATM()) {
+            // set inProcessing mode
+            this.setState({
+                inProcessing: true
+            });
             // get md5
             const md5 = require('md5');
             // get pay item
@@ -241,6 +256,10 @@ export default class Paytowallet extends Component {
                     window.location.href = response.data.data.link;
                 })
                 .catch((err) => {
+                    // release inProcessing mode
+                    this.setState({
+                        inProcessing: false
+                    });
                     console.log(err)
                 });
         }
@@ -324,7 +343,7 @@ export default class Paytowallet extends Component {
                                     <div className="message-head clearfix handle-acc-role">
                                         <div className="user-detail">
                                             <h5 className="handle">Tài khoản : {this.state.username}</h5>
-                                            <h6 className="handle">Số dư : { this.state.balance } <u>đ</u></h6>
+                                            <h6 className="handle">Số dư : {this.state.balance} <u>đ</u></h6>
                                             <input type="hidden" defaultValue={0} name="balance"/>
                                             <input type="hidden" defaultValue={771866} name="id_user" id="id_user"/>
                                             <input type="hidden" defaultValue={0} name="amount" id="amount"/>
@@ -405,21 +424,38 @@ export default class Paytowallet extends Component {
                                                                        className="form-control"
                                                                        onChange={this.handleChange}/>
                                                             </label>
-                                                            <div className="btn btn-info" id="btnXacnhan"
-                                                                 data-id="the-cao"
-                                                                 onClick={this.payByCard}>
-                                                                Thanh toán
-                                                            </div>
+                                                            <button className="btn btn-info" id="btnXacnhan"
+                                                                    type={"button"}
+                                                                    data-id="the-cao"
+                                                                    onClick={this.payByCard}
+                                                                    disabled={this.state.inProcessing}>
+                                                                {
+                                                                    !this.state.inProcessing &&
+                                                                    <span>Thanh toán</span>
+                                                                }
+                                                                {
+                                                                    this.state.inProcessing &&
+                                                                    <div className={'dot-loader'}>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                    </div>
+                                                                }
+                                                            </button>
                                                             {
                                                                 (
                                                                     this.state.processingResult.status !== null &&
                                                                     !this.state.processingResult.status &&
-                                                                    <span className="message-alert">{this.state.processingResult.message}</span>
+                                                                    <span
+                                                                        className="message-alert">{this.state.processingResult.message}</span>
                                                                 ) ||
                                                                 (
                                                                     this.state.processingResult.status !== null &&
                                                                     this.state.processingResult.status &&
-                                                                    <span className="message-success">{this.state.processingResult.message}</span>
+                                                                    <span
+                                                                        className="message-success">{this.state.processingResult.message}</span>
                                                                 )
                                                             }
                                                             <div className="clearfix"/>
@@ -463,9 +499,24 @@ export default class Paytowallet extends Component {
                                                                     }
                                                                 </select>
                                                             </label>
-                                                            <div className="btn btn-info" id="btnXacnhan"
-                                                                 data-id="the-atm" onClick={this.payByATM}>Thanh toán
-                                                            </div>
+                                                            <button className="btn btn-info" id="btnXacnhan"
+                                                                    type={"button"} data-id="the-atm"
+                                                                    onClick={this.payByATM} disabled={this.state.inProcessing}>
+                                                                {
+                                                                    !this.state.inProcessing &&
+                                                                    <span>Thanh toán</span>
+                                                                }
+                                                                {
+                                                                    this.state.inProcessing &&
+                                                                    <div className={'dot-loader'}>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                        <div></div>
+                                                                    </div>
+                                                                }
+                                                            </button>
                                                         </div>
                                                     </div>
                                                 </div>
