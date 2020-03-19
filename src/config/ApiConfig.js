@@ -13,8 +13,8 @@ apiConfig.endpoint = {
     getGame: 'game/get-list',
     getDetailGameToGame: 'server/list',
     getDetailGameToWallet: 'game/detail',
-    chargeCard: 'paymentGame/charge-card',
-    chargeATM: 'paymentGame/charge-atm'
+    paymentWalletChargeCard: 'paymentWallet/charge-card',
+    paymentWalletChargeATM: 'paymentWallet/charge-atm'
 };
 apiConfig.jwtToken = 'ADFASVASVASCAS';
 apiConfig.header = {

@@ -29,6 +29,10 @@ export default class Paytowallet extends Component {
             serversList: [],
             isDisableSelectServers: true,
             payItem: {},
+            processingResult: {
+                status: null,
+                message: ''
+            },
             errors: {}
         }
     }
@@ -147,11 +151,6 @@ export default class Paytowallet extends Component {
             }
         }));
 
-        // reset server list
-        document.getElementById('server_group').value = '';
-        document.getElementById('server_list').value = '';
-        document.getElementById('server_group').dispatchEvent(new Event('change', { 'bubbles': true }));
-
         // reset error
         this.setState({
             errors: {}
@@ -175,19 +174,37 @@ export default class Paytowallet extends Component {
             const payItem = this.state.payItem;
 
             // generate endpoint
-            const endPoint = apiConfig.domain + apiConfig.endpoint.chargeCard +
+            const endPoint = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeCard +
                 '?serial=' + payItem.serie +
                 '&code=' + payItem.number +
                 '&username=' + payItem.username +
                 '&productAgent=' + payItem.productAgent +
                 '&type=' + payItem.cardType +
-                '&server_id=' + payItem.server_id +
                 '&sign=' + md5(payItem.username + apiConfig.jwtToken);
 
             // call api
             api.call('GET', endPoint)
                 .then((response) => {
-                    console.log(response)
+                    // get response data
+                    let responseData = response.data;
+
+                    // set state
+                    if (responseData.status) {
+                        this.setState({
+                            balance: responseData.data.balance,
+                            processingResult: {
+                                status: true,
+                                message: responseData.messages
+                            }
+                        })
+                    } else {
+                        this.setState({
+                            processingResult: {
+                                status: false,
+                                message: responseData.messages
+                            }
+                        })
+                    }
                 })
                 .catch((err) => {
                     console.log(err)
@@ -212,15 +229,11 @@ export default class Paytowallet extends Component {
             const payItem = this.state.payItem;
 
             // generate endpoint
-            const endPoint = apiConfig.domain + apiConfig.endpoint.chargeATM +
-                '?amount=' + payItem.amount +
-                '&username=' + payItem.username +
+            const endPoint = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATM +
+                '?username=' + payItem.username +
                 '&productAgent=' + payItem.productAgent +
-                '&roleId=' + payItem.productAgent +
-                '&server_id=' + payItem.server_id +
+                '&amount=' + payItem.amount +
                 '&sign=' + md5(payItem.username + apiConfig.jwtToken);
-
-            console.log(endPoint);
 
             // call api
             api.call('GET', endPoint)
@@ -259,12 +272,6 @@ export default class Paytowallet extends Component {
             errors.number = 'Vui lòng nhập mã thẻ';
             isValid = false;
         }
-        // check server
-        if (typeof this.state.payItem.server_id === typeof undefined
-            || this.state.payItem.server_id === '') {
-            errors.server_id = 'Vui lòng chọn server';
-            isValid = false;
-        }
 
         // set errors
         await this.setState({
@@ -288,12 +295,6 @@ export default class Paytowallet extends Component {
         // check amount
         if (Validate.isRequired(this.state.payItem.amount)) {
             errors.amount = 'Vui lòng chọn số tiền nạp';
-            isValid = false;
-        }
-        // check server
-        if (typeof this.state.payItem.server_id === typeof undefined
-            || this.state.payItem.server_id === '') {
-            errors.server_id = 'Vui lòng chọn server';
             isValid = false;
         }
 
@@ -364,7 +365,8 @@ export default class Paytowallet extends Component {
                                                                 <span>Loại thẻ</span>
                                                                 {
                                                                     this.state.errors.hasOwnProperty('cardType') &&
-                                                                    <span className="input-error">{this.state.errors.cardType}</span>
+                                                                    <span
+                                                                        className="input-error">{this.state.errors.cardType}</span>
                                                                 }
                                                                 <select name="cardType" className="form-control valid"
                                                                         aria-invalid="false"
@@ -384,17 +386,20 @@ export default class Paytowallet extends Component {
                                                                 <span>Số serie</span>
                                                                 {
                                                                     this.state.errors.hasOwnProperty('serie') &&
-                                                                    <span className="input-error">{this.state.errors.serie}</span>
+                                                                    <span
+                                                                        className="input-error">{this.state.errors.serie}</span>
                                                                 }
                                                                 <input type="text" name="serie"
                                                                        className="form-control"
                                                                        onChange={this.handleChange}/>
                                                             </label>
-                                                            <label htmlFor="in_pin" className="col-sm-12 controll-label">
+                                                            <label htmlFor="in_pin"
+                                                                   className="col-sm-12 controll-label">
                                                                 <span>Mã thẻ</span>
                                                                 {
                                                                     this.state.errors.hasOwnProperty('number') &&
-                                                                    <span className="input-error">{this.state.errors.number}</span>
+                                                                    <span
+                                                                        className="input-error">{this.state.errors.number}</span>
                                                                 }
                                                                 <input type="text" name="number"
                                                                        className="form-control"
@@ -402,9 +407,21 @@ export default class Paytowallet extends Component {
                                                             </label>
                                                             <div className="btn btn-info" id="btnXacnhan"
                                                                  data-id="the-cao"
-                                                                 onClick={this.payByCard}
-                                                            >Thanh toán
+                                                                 onClick={this.payByCard}>
+                                                                Thanh toán
                                                             </div>
+                                                            {
+                                                                (
+                                                                    this.state.processingResult.status !== null &&
+                                                                    !this.state.processingResult.status &&
+                                                                    <span className="message-alert">{this.state.processingResult.message}</span>
+                                                                ) ||
+                                                                (
+                                                                    this.state.processingResult.status !== null &&
+                                                                    this.state.processingResult.status &&
+                                                                    <span className="message-success">{this.state.processingResult.message}</span>
+                                                                )
+                                                            }
                                                             <div className="clearfix"/>
                                                         </div>
                                                     </div>
@@ -427,11 +444,13 @@ export default class Paytowallet extends Component {
                                                      aria-labelledby="headingTwo" data-id="Thẻ ATM/Nội địa/NAPAS">
                                                     <div className="panel-body">
                                                         <div id="tab_card_pay">
-                                                            <label htmlFor="amount_pay" className="col-sm-12 controll-label">
+                                                            <label htmlFor="amount_pay"
+                                                                   className="col-sm-12 controll-label">
                                                                 <span>Số tiền thanh toán (VNĐ)</span>
                                                                 {
                                                                     this.state.errors.hasOwnProperty('amount') &&
-                                                                    <span className="input-error">{this.state.errors.amount}</span>
+                                                                    <span
+                                                                        className="input-error">{this.state.errors.amount}</span>
                                                                 }
                                                                 <select name="amount" className="form-control"
                                                                         onChange={this.handleChange}>
@@ -486,17 +505,13 @@ export default class Paytowallet extends Component {
                                                     )
                                                 }
                                             </select>
-                                            <label htmlFor="server_list" className="col-sm-12 controll-label" style={{width: 'auto'}}>
+                                            <label htmlFor="server_list" className="col-sm-12 controll-label"
+                                                   style={{width: 'auto'}}>
                                                 Chọn server:
                                             </label>
-                                            {
-                                                this.state.errors.hasOwnProperty('server_id') &&
-                                                <span className="input-error">{this.state.errors.server_id}</span>
-                                            }
                                             <select name="server_id" className="form-control "
                                                     id="server_list"
                                                     disabled={this.state.isDisableSelectServers}
-                                                    onChange={this.handleChange}
                                             >
                                                 <option value="">Chọn server</option>
                                                 {
