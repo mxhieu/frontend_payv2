@@ -13,12 +13,15 @@ apiConfig.endpoint = {
     getGame: 'game/get-list',
     getDetailGameToGame: 'server/list',
     chargeCard: 'paymentGame/charge-card',
-    getRole: 'game/get-role'
+    getRole: 'game/get-role',
+    getDetailGameToWallet: 'game/detail',
+    paymentWalletChargeCard: 'paymentWallet/charge-card',
+    paymentWalletChargeATM: 'paymentWallet/charge-atm'
 }
-apiConfig.jwtToken = 'ADFASVASVASCAS'
+apiConfig.jwtToken = 'ADFASVASVASCAS';
 apiConfig.header = {
     contentJson: {
-      "Content-Type": "application/json"
+        "Content-Type": "application/json"
     },
 };
 
