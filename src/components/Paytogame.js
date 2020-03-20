@@ -11,6 +11,8 @@ class Paytogame extends Component {
         super(props)
         this.state = {
             username: JSON.parse(localStorage.getItem('user')).data.username,
+            userRole: {},
+            sltRoleId: '',
             sltServer: '',
             sltCardType: '',
             txtSerie: '',
@@ -52,10 +54,27 @@ class Paytogame extends Component {
         }
     }
 
+    static getDerivedStateFromProps(nextProps, prevState){
+        let userRole = nextProps.paymentReducer.userRole.data
+        
+        if(prevState.sltServer !== '' && userRole)
+        {
+            return {
+                userRole: nextProps.paymentReducer.userRole,
+                sltRoleId: prevState.sltRoleId!==''?prevState.sltRoleId:userRole.role[0].roleId
+            }            
+        }
+        return {
+            userRole: {},
+            sltRoleId: ''
+        }
+    }
+
+
     handlePayByATM = (e) => {
         e.preventDefault();
         if(this.validatePayAtm()){
-            alert("submitted")
+            this.props.chargeAtm(this.state);
         }
     }
 
@@ -120,10 +139,13 @@ class Paytogame extends Component {
     hanleGetRole = (event) =>{
         const target = event.target;
         const serverId = target.value;
+        if(serverId !== '')
+        {
+            this.props.getUserRole(serverId, JSON.parse(localStorage.getItem('user')).data.id, this.state.gameInfo.agent);
+        }
         this.setState({
             sltServer: serverId
         })
-        this.props.getUserRole(serverId, JSON.parse(localStorage.getItem('user')).data.id, this.state.gameInfo.agent);
     }
 
     handleChange = (event) =>{
@@ -144,7 +166,7 @@ class Paytogame extends Component {
                 return <option key={index} value={val.server_id}>{val.server_name}</option>
             })
         }
-        let {errorsCard, errorsAtm, errorSelectServer, gameInfo} = this.state;
+        let {errorsCard, errorsAtm, errorSelectServer, gameInfo, userRole} = this.state;
         let {paymentReducer} = this.props;
         return (
             <div className="container paytogame_container">
@@ -157,6 +179,18 @@ class Paytogame extends Component {
                         <option value="">Chọn server</option>
                         {serverElement}
                     </select>
+                    {
+                        Object.keys(userRole).length > 0 ?
+                        (<div>
+                            <label htmlFor="sltRoleId" className="col-sm-12 controll-label"> Chọn nhân vật:</label>
+                            <select name="sltRoleId" onChange={this.handleChange} className="form-control " id="userRole">
+                            {userRole.data.role.map((val, index) => {
+                                return <option key={index} value={val.roleId}>{val.roleName}</option>
+                            })}
+                            </select>
+                        </div>)
+                        :'Không tìm thấy nhân vật'
+                    }
                     <div id="appentHtml" />
                     <div className="clearfix" /> <input type="hidden" name="id_user" id="id_user" />
                     <div className="hd-Form"> Bước 2: Chọn phương thức thanh toán (*)</div>
@@ -197,7 +231,6 @@ class Paytogame extends Component {
                                             {paymentReducer.chargeCard.messages}
                                         </span>)
                                         }
-                                        
                                     </div>
                                 </form>
                             </div>
@@ -256,9 +289,12 @@ const mapDispatchToProps = (dispatch, props) => {
         chargeCard: (params) => {
             dispatch(paymentActions.chargeCardRequest(params))
         },
+        chargeAtm: (params) => {
+            dispatch(paymentActions.chargeAtmRequest(params))
+        },
         getUserRole: ( serverId, userId, agent) => {
             dispatch(paymentActions.getUserRoleRequest(serverId, userId, agent))
-        }
+        },
     }
 }
 

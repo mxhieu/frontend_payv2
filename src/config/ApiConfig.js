@@ -14,6 +14,7 @@ apiConfig.endpoint = {
     getDetailGameToGame: 'server/list',
     chargeCard: 'paymentGame/charge-card',
     getRole: 'game/get-role',
+    chargeAtm: 'paymentGame/charge-atm',
     getDetailGameToWallet: 'game/detail',
     paymentWalletChargeCard: 'paymentWallet/charge-card',
     paymentWalletChargeATM: 'paymentWallet/charge-atm'
