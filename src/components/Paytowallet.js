@@ -29,6 +29,7 @@ export default class Paytowallet extends Component {
             serversList: [],
             isDisableSelectServers: true,
             payItem: {},
+            inLoadingPage: false,
             inProcessing: false,
             processingResult: {
                 status: null,
@@ -42,13 +43,15 @@ export default class Paytowallet extends Component {
      * On component did mount event
      * @created 2020-03-18 LongTHk
      */
-    componentDidMount() {
+    async componentDidMount() {
         // get md5
         let md5 = require('md5');
         // get username
         let username = JSON.parse(localStorage.getItem('user')).data.username;
+        // get query string
+        let queryString = require('query-string');
 
-        // call api
+        // call api get page content
         let slug = this.props.match.match.params.slug;
         let sign = md5(username + apiConfig.jwtToken);
         let endPoint = apiConfig.domain + apiConfig.endpoint.getDetailGameToWallet + '?slug=' + slug + '&username=' + username + '&sign=' + sign;
@@ -68,6 +71,32 @@ export default class Paytowallet extends Component {
                     serverGroups: serverGroups
                 })
             });
+
+        // get query params
+        let strParams = this.props.match.location.search;
+        let params = await queryString.parse(strParams);
+        if (_.has(params, 'trans_id')) {
+            // set inLoadingPage status
+            this.setState({
+                inLoadingPage: true
+            });
+
+            let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
+            api.call('GET', endpointATMSuccess)
+                .then((response) => {
+                    // display messages
+                    alert(response.data.messages)
+                })
+                .catch((err) => {
+                    console.log(err)
+                })
+                .finally(() => {
+                    // release inLoadingPage status
+                    this.setState({
+                        inLoadingPage: false
+                    });
+                });
+        }
     }
 
     /**
@@ -331,6 +360,14 @@ export default class Paytowallet extends Component {
      * @created 2020-03-18 LongTHK
      */
     render() {
+        if (this.state.inLoadingPage) {
+            return (
+                <div style={{textAlign: "center"}}>
+                    <div className="lds-dual-ring"></div>
+                </div>
+            )
+        }
+
         return (
             <div className="container paytowallet_container">
                 <div className="row box">
