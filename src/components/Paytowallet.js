@@ -59,7 +59,6 @@ export default class Paytowallet extends Component {
             .then((response) => {
                 // get return data
                 let data = response.data.data;
-
                 // spit servers list into server groups
                 let serverGroups = _.chunk(data.servers, 10);
 
@@ -67,12 +66,12 @@ export default class Paytowallet extends Component {
                 this.setState({
                     username: username,
                     balance: data.balance,
-                    game: data.game[0],
+                    game: data.length > 0 ? data.game[0] : null,
                     serverGroups: serverGroups
                 })
             });
 
-        // get query params
+        // call api check Charging ATM status
         let strParams = this.props.match.location.search;
         let params = await queryString.parse(strParams);
         if (_.has(params, 'trans_id')) {
@@ -364,6 +363,14 @@ export default class Paytowallet extends Component {
             return (
                 <div style={{textAlign: "center"}}>
                     <div className="lds-dual-ring"></div>
+                </div>
+            )
+        }
+
+        if (this.state.game === null) {
+            return (
+                <div>
+                    <h1 className='text-center'>Không tìm thấy game</h1>
                 </div>
             )
         }
