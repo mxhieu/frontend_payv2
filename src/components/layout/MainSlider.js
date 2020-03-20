@@ -10,7 +10,7 @@ class MainSlider extends Component {
     constructor(props){
         super(props)
         this.state = {
-            sliders: this.props.sliders
+            sliders: {}
         }
     }
 
@@ -18,8 +18,14 @@ class MainSlider extends Component {
         this.props.getAllRequest();
     }
 
+    static getDerivedStateFromProps(props) {
+        return {
+            sliders: props.sliders
+        }
+    }
+
     render() {
-        var { sliders } = this.props;
+        var { sliders } = this.state;
         return (
             <div>
                 {
@@ -42,7 +48,6 @@ class MainSlider extends Component {
                     null
                 }   
             </div>
-           
         )
     }
 }

@@ -8,15 +8,15 @@ export class Games extends Component {
 
     constructor(props){
         super(props)
+        this.state = {
+        }
     }
 
     componentDidMount(){
         this.props.getGameList();
-        
     }
 
     render() {
-        console.log(this.props.gamesReducer.data)
         if(this.props.gamesReducer.data.length > 0 )
         {
             var { gamesReducer } = this.props;

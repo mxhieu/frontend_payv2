@@ -11,7 +11,9 @@ apiConfig.endpoint = {
     getPosts: 'post/get-list',
     getDetailPost: 'post/get-detail/',
     getGame: 'game/get-list',
-    getDetailGameToGame: 'server/list'
+    getDetailGameToGame: 'server/list',
+    chargeCard: 'paymentGame/charge-card',
+    getRole: 'game/get-role'
 }
 apiConfig.jwtToken = 'ADFASVASVASCAS'
 apiConfig.header = {
