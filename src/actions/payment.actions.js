@@ -1,9 +1,7 @@
 import paymentActionTypes from '../actionTypes/payment.actiontypes';
 import Api from '../utils/Api';
 import ApiConfig from '../config/ApiConfig';
-import { Redirect } from "react-router-dom";
-import React from 'react'
-
+import isLoadingAction from "./isloading.actions";
 const paymentActions = {};
 
 paymentActions.chargeCardRequest = (params) => {
@@ -11,11 +9,13 @@ paymentActions.chargeCardRequest = (params) => {
     let sign = md5(params.username + ApiConfig.jwtToken)
     let endpoint = ApiConfig.domain + ApiConfig.endpoint.chargeCard + '?serial='+params.txtSerie+'&code='+params.txtCardPin+'&username='+params.username+'&productAgent='+params.gameInfo.agent+'&type='+params.sltCardType+'&server_id='+params.sltServer+'&sign='+sign+'';
     return async (dispatch) => {
+        dispatch(isLoadingAction.showLoader())
         await Api.call('GET', endpoint ).then( result => {
-            if(result.data.status === 1){
+            if(result.data.status === 1 || result.data.status === 0){
                 dispatch(paymentActions.chargeCard(result))
             }
         })
+        dispatch(isLoadingAction.hideLoader())
     }
 }
 
@@ -31,10 +31,9 @@ paymentActions.chargeAtmRequest = (params) => {
     let sign = md5(params.username + ApiConfig.jwtToken)
     let endpoint = ApiConfig.domain + ApiConfig.endpoint.chargeAtm + '?amount='+params.sltAmount+'&username='+params.username+'&productAgent='+params.gameInfo.agent+'&roleId='+params.sltRoleId+'&server_id='+params.sltServer+'&sign='+sign+'';
     return async (dispatch) => {
+        dispatch(isLoadingAction.showLoader())
         await Api.call('GET', endpoint ).then( result => {
-            console.log(result.data.status)
             if(result.data.status === 1){
-                // console.log(result.data.data.link)
                 window.location.href = result.data.data.link;
             }
         })

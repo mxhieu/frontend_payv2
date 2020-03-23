@@ -2,12 +2,19 @@ import React, { Component } from 'react'
 import { NavLink } from "react-router-dom";
 
 export default class PayBreadcrumb extends Component {
+
+    constructor(props){
+        super(props)
+    }
+
     render() {
+        let {match} = this.props
+        let payUrl = "/nap-vi/"+match.params.slug+"-g"+match.params.id
         return (
             <div className="tab-Switch">
-                <NavLink to="/payment/hanh-tau-giang-ho.html">Nạp thẻ</NavLink>
-                <NavLink to="/lich-su/lich-su-vi.html">Lịch sử ví</NavLink>
-                <NavLink to="/lich-su/lich-su-game.html">Lịch sử game</NavLink>
+                <NavLink to={payUrl}>Nạp thẻ</NavLink>
+                <NavLink to={"/lich-su-vi/"+match.params.slug+"-g"+match.params.id}>Lịch sử ví</NavLink>
+                <NavLink to={"/lich-su-game/"+match.params.slug+"-g"+match.params.id}>Lịch sử game</NavLink>
             </div>
         )
     }

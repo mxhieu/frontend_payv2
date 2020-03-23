@@ -61,12 +61,11 @@ export default class Paytowallet extends Component {
                 let data = response.data.data;
                 // spit servers list into server groups
                 let serverGroups = _.chunk(data.servers, 10);
-
                 // set state
                 this.setState({
                     username: username,
                     balance: data.balance,
-                    game: data.length > 0 ? data.game[0] : null,
+                    game: Object.keys(data).length > 0 ? data.game[0] : null,
                     serverGroups: serverGroups
                 })
             });
@@ -374,11 +373,10 @@ export default class Paytowallet extends Component {
                 </div>
             )
         }
-
         return (
             <div className="container paytowallet_container">
                 <div className="row box">
-                    <PayBreadcrumb></PayBreadcrumb>
+                    <PayBreadcrumb match={this.props.match.match}></PayBreadcrumb>
                     <form method="POST" name="napgold" id="napgold" noValidate="novalidate">
                         <h2>{this.state.game.name}</h2>
                         <div className="qa-message-list" id="wallmessages">

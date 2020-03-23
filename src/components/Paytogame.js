@@ -70,7 +70,6 @@ class Paytogame extends Component {
         }
     }
 
-
     handlePayByATM = (e) => {
         e.preventDefault();
         if(this.validatePayAtm()){
@@ -207,7 +206,7 @@ class Paytogame extends Component {
                                         <label htmlFor="sltCardType" className="col-sm-12 controll-label">
                                             <span>Loại thẻ</span>
                                             {errorsCard.sltCardType && (<span className="input-error">{errorsCard.sltCardType[0]}</span>)}
-                                            <select name="sltCardType" onChange={this.handleChange} className="form-control">
+                                            <select onBlur={this.validatePayCard} name="sltCardType" onChange={this.handleChange} className="form-control">
                                                 <option value="">Chọn loại thẻ</option>
                                                 <option value="HPC">HPCode</option>
                                                 <option value="GATE">GATE</option>
@@ -216,16 +215,24 @@ class Paytogame extends Component {
                                         <label htmlFor="txtSerie" className="col-sm-12 controll-label">
                                             <span>Số serie</span>
                                             {errorsCard.txtSerie && (<span className="input-error">{errorsCard.txtSerie[0]}</span>)}
-                                            <input type="text" name="txtSerie" className="form-control" onChange={this.handleChange} />
+                                            <input onBlur={this.validatePayCard} type="text" name="txtSerie" className="form-control" onChange={this.handleChange} />
                                         </label>
                                         <label htmlFor="txtCardPin" className="col-sm-12 controll-label">
                                             <span>Mã thẻ</span>
                                             {errorsCard.txtCardPin && (<span className="input-error">{errorsCard.txtCardPin[0]}</span>)}
-                                            <input type="text" name="txtCardPin" className="form-control" onChange={this.handleChange} />
+                                            <input onBlur={this.validatePayCard} type="text" name="txtCardPin" className="form-control" onChange={this.handleChange} />
                                         </label>
-                                        <button id="submitCard" className="col-sm-3 btn btn-primary">Thanh toán</button>
+                                        <button disabled={this.props.isLoadingReducer.isLoading} id="submitCard" className="col-sm-3 btn btn-primary">{this.props.isLoadingReducer.isLoading?
+                                        <div className={'dot-loader'}>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                        </div>
+                                        :'thanh toán'}</button>
                                         {
-                                        paymentReducer.chargeCard ?(<span className="message-success">
+                                        paymentReducer.chargeCard.status === 1 ?(<span className="message-success">
                                             {paymentReducer.chargeCard.messages}
                                         </span>):(<span className="message-alert">
                                             {paymentReducer.chargeCard.messages}
@@ -260,7 +267,15 @@ class Paytogame extends Component {
                                                 <option value={2000000}>2,000,000</option>
                                             </select>
                                         </label>
-                                        <button id="submitAtm" className="col-sm-3 btn btn-primary">Thanh toán</button>
+                                        <button disabled={this.props.isLoadingReducer.isLoading} id="submitAtm" className="col-sm-3 btn btn-primary">{this.props.isLoadingReducer.isLoading?
+                                        <div className={'dot-loader'}>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                        </div>
+                                        :'thanh toán'}</button>
                                     </div>
                                 </form>
                             </div>
@@ -278,7 +293,8 @@ class Paytogame extends Component {
 
 const mapStateToProps = (state) => ({
     gamesReducer: state.gamesReducer,
-    paymentReducer: state.paymentReducer
+    paymentReducer: state.paymentReducer,
+    isLoadingReducer: state.isLoadingReducer
 })
 
 const mapDispatchToProps = (dispatch, props) => {

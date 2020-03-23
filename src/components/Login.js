@@ -106,7 +106,15 @@ class Login extends Component {
                         <label htmlFor="password" className="col-sm-12 controll-label">Mật khẩu *</label>
                         <input type="password" name="password" className="form-control" id="password" onChange={this.handleChange} />
                         <small className="errorInput">{errors.password?errors.password[0]:''}</small>
-                        <button id="submitbutton">Đăng nhập</button>
+                        <button disabled={this.props.isLoadingReducer.isLoading} id="submitbutton">{this.props.isLoadingReducer.isLoading?
+                            <div className={'dot-loader'}>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                                <div></div>
+                            </div>
+                            :'Đăng nhập'}</button>
                     </form>
                     <div className="clearfix" />
                     <div className="exist-account">Bạn chưa có tài khoản. <a href="/">Đăng ký ngay</a></div>
@@ -123,7 +131,8 @@ class Login extends Component {
 
 const mapStateToProps = state => {
     return {
-      login: state.loginReducer
+      login: state.loginReducer,
+      isLoadingReducer: state.isLoadingReducer
     };
 };
 
