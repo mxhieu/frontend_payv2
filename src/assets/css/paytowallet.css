@@ -454,3 +454,9 @@ p#sumInfo {
         transform: rotate(360deg);
     }
 }
+
+
+.role-name {
+    font-size: large;
+    margin-top: 30px;
+}
