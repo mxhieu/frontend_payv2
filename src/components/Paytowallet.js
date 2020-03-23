@@ -43,13 +43,33 @@ export default class Paytowallet extends Component {
      * On component did mount event
      * @created 2020-03-18 LongTHk
      */
-    async componentDidMount() {
+    componentDidMount() {
         // get md5
         let md5 = require('md5');
         // get username
         let username = JSON.parse(localStorage.getItem('user')).data.username;
         // get query string
         let queryString = require('query-string');
+
+        // set inLoadingPage status
+        this.setState({
+            inLoadingPage: true
+        });
+
+        // call api check Charging ATM status
+        let strParams = this.props.match.location.search;
+        let params = queryString.parse(strParams);
+        if (_.has(params, 'trans_id')) {
+            let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
+            api.call('GET', endpointATMSuccess)
+                .then((response) => {
+                    // display messages
+                    alert(response.data.messages)
+                })
+                .catch((err) => {
+                    console.log(err)
+                });
+        }
 
         // call api get page content
         let slug = this.props.match.match.params.slug;
@@ -66,36 +86,11 @@ export default class Paytowallet extends Component {
                 this.setState({
                     username: username,
                     balance: data.balance,
-                    game: data.length > 0 ? data.game[0] : null,
-                    serverGroups: serverGroups
+                    game: Object.keys(data).length > 0 ? data.game[0] : null,
+                    serverGroups: serverGroups,
+                    inLoadingPage: false
                 })
             });
-
-        // call api check Charging ATM status
-        let strParams = this.props.match.location.search;
-        let params = await queryString.parse(strParams);
-        if (_.has(params, 'trans_id')) {
-            // set inLoadingPage status
-            this.setState({
-                inLoadingPage: true
-            });
-
-            let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
-            api.call('GET', endpointATMSuccess)
-                .then((response) => {
-                    // display messages
-                    alert(response.data.messages)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-                    // release inLoadingPage status
-                    this.setState({
-                        inLoadingPage: false
-                    });
-                });
-        }
     }
 
     /**
@@ -359,6 +354,9 @@ export default class Paytowallet extends Component {
      * @created 2020-03-18 LongTHK
      */
     render() {
+        /**
+         * Loading page animation
+         */
         if (this.state.inLoadingPage) {
             return (
                 <div style={{textAlign: "center"}}>
@@ -367,6 +365,9 @@ export default class Paytowallet extends Component {
             )
         }
 
+        /**
+         * Render in case game not found
+         */
         if (this.state.game === null) {
             return (
                 <div>
@@ -375,6 +376,9 @@ export default class Paytowallet extends Component {
             )
         }
 
+        /**
+         * Page render
+         */
         return (
             <div className="container paytowallet_container">
                 <div className="row box">
@@ -545,7 +549,8 @@ export default class Paytowallet extends Component {
                                                             </label>
                                                             <button className="btn btn-info" id="btnXacnhan"
                                                                     type={"button"} data-id="the-atm"
-                                                                    onClick={this.payByATM} disabled={this.state.inProcessing}>
+                                                                    onClick={this.payByATM}
+                                                                    disabled={this.state.inProcessing}>
                                                                 {
                                                                     !this.state.inProcessing &&
                                                                     <span>Thanh toán</span>
@@ -653,6 +658,16 @@ export default class Paytowallet extends Component {
                             </div>
                         </div>
                     </form>
+                </div>
+
+                <div className="modal" tabIndex="-1" role="dialog">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <p>Modal body text goes here.</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
