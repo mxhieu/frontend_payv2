@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { connect } from 'react-redux'
 import "../assets/css/paytogame.css"
-import PayBreadcrumb from './PayBreadcrumb'
 import gameActions from "../actions/games.actions"
+import paymentActions from "../actions/payment.actions"
 import Validate from "../utils/Validate";
 
 class Paytogame extends Component {
@@ -10,12 +10,18 @@ class Paytogame extends Component {
     constructor(props){
         super(props)
         this.state = {
+            username: JSON.parse(localStorage.getItem('user')).data.username,
+            userRole: {},
+            sltRoleId: '',
             sltServer: '',
             sltCardType: '',
             txtSerie: '',
             txtCardPin: '',
             sltAmount: '',
-            errors: []
+            gameInfo: {},
+            errorsAtm: [],
+            errorsCard: [],
+            errorSelectServer: []
         }
     }
 
@@ -27,69 +33,119 @@ class Paytogame extends Component {
     handlePayByCard = (e) =>{
         e.preventDefault();
         if(this.validatePayCard()){
-            alert("submitted")
+            this.props.chargeCard(this.state)
         }
     }
+
+    componentDidUpdate(previousProps, previousState){
+        if(Object.keys(previousState.gameInfo).length === 0)
+        {
+            let gameData = previousProps.gamesReducer.data;
+            for (var key in gameData) {
+                if (gameData.hasOwnProperty(key)) {
+                    if(gameData[key].slug === previousProps.match.params.slug)
+                    {
+                        this.setState({
+                            gameInfo: gameData[key]
+                        })
+                    }
+                }
+            }
+        }
+    }
+
+    static getDerivedStateFromProps(nextProps, prevState){
+        let userRole = nextProps.paymentReducer.userRole.data
+        
+        if(prevState.sltServer !== '' && userRole)
+        {
+            return {
+                userRole: nextProps.paymentReducer.userRole,
+                sltRoleId: prevState.sltRoleId!==''?prevState.sltRoleId:userRole.role[0].roleId
+            }            
+        }
+        return {
+            userRole: {},
+            sltRoleId: ''
+        }
+    }
+
 
     handlePayByATM = (e) => {
         e.preventDefault();
         if(this.validatePayAtm()){
-            alert("submitted")
+            this.props.chargeAtm(this.state);
         }
     }
 
     validatePayCard = () => {
         const { sltServer, sltCardType, txtSerie, txtCardPin } = this.state;
-        let errors = {
+        let errorsCard = {
             sltServer: [],
             sltCardType: [],
             txtSerie: [],
             txtCardPin: [],
             sltAmount: []
         };
+        let errorSelectServer = [];
         let isValid = true;
         if (Validate.isRequired( sltServer )) {
-            errors.sltServer.push('Vui lòng chọn server');
+            errorSelectServer.push('Vui lòng chọn server');
             isValid = false;
         }
         if (Validate.isRequired( sltCardType )) {
-            errors.sltCardType.push('Vui lòng chọn loại thẻ');
+            errorsCard.sltCardType.push('Vui lòng chọn loại thẻ');
             isValid = false;
         }
         if (Validate.isRequired( txtSerie )) {
-            errors.txtSerie.push('Loại thẻ bắt buộc nhập');
+            errorsCard.txtSerie.push('Loại thẻ bắt buộc nhập');
             isValid = false;
         }
         if (Validate.isRequired( txtCardPin )) {
-            errors.txtCardPin.push('Mã thẻ bắt buộc nhập');
+            errorsCard.txtCardPin.push('Mã thẻ bắt buộc nhập');
             isValid = false;
         }
         this.setState({
-            errors: errors
+            errorsCard: errorsCard,
+            errorSelectServer: errorSelectServer
         })
-        console.log(errors)
         return isValid
     }
 
     validatePayAtm = () => {
         const { sltServer, sltAmount } = this.state;
-        let errors = {
+        let errorsAtm = {
             sltServer: [],
             sltAmount: []
         };
+        let errorSelectServer = [];
         let isValid = true;
         if (Validate.isRequired( sltServer )) {
-            errors.sltServer.push('Vui lòng chọn server');
+            errorSelectServer.push('Vui lòng chọn server');
             isValid = false;
         }
         if (Validate.isRequired( sltAmount )) {
-            errors.sltAmount.push('Vui lòng chọn mệnh giá');
+            errorsAtm.sltAmount.push('Vui lòng chọn mệnh giá');
             isValid = false;
         }
         this.setState({
-            errors: errors
+            errorsAtm: errorsAtm,
+            errorSelectServer: errorSelectServer
         })
+        
         return isValid
+    }
+
+    hanleGetRole = (event) =>{
+        const target = event.target;
+        const serverId = target.value;
+        if(serverId !== '')
+        {
+            this.props.getUserRole(serverId, JSON.parse(localStorage.getItem('user')).data.id, this.state.gameInfo.agent);
+        }
+        this.setState({
+            sltServer: serverId
+        })
     }
 
     handleChange = (event) =>{
@@ -102,18 +158,39 @@ class Paytogame extends Component {
     }
 
     render() {
-        console.log(this.props)
+        let server = this.props.gamesReducer.detail;
+        let serverElement = null;
+        if(server.length > 0)
+        {
+            serverElement = server.map((val, index) => {
+                return <option key={index} value={val.server_id}>{val.server_name}</option>
+            })
+        }
+        let {errorsCard, errorsAtm, errorSelectServer, gameInfo, userRole} = this.state;
+        let {paymentReducer} = this.props;
         return (
             <div className="container paytogame_container">
                 <div className="row box">
-                    <PayBreadcrumb></PayBreadcrumb>
-                    <h2>Thế Giới Cá</h2>
+                    <h2>{gameInfo.name}</h2>
                     <div className="hd-Form"> Bước 1: Chọn thông tin nhân vật (*)</div>
                     <label htmlFor="sltServer" className="col-sm-12 controll-label" id="list_server"> Chọn server:</label>
-                    <select name="sltServer" onChange={this.handleChange} className="form-control " id="server_list">
-                        <option value>Chọn server</option>
-                        <option value="TGC">TGC</option>
+                    {errorSelectServer && (<span className="input-error">{errorSelectServer[0]}</span>)}
+                    <select name="sltServer" value={this.state.sltServer} onChange={this.hanleGetRole} className="form-control " id="server_list">
+                        <option value="">Chọn server</option>
+                        {serverElement}
                     </select>
+                    {
+                        Object.keys(userRole).length > 0 ?
+                        (<div>
+                            <label htmlFor="sltRoleId" className="col-sm-12 controll-label"> Chọn nhân vật:</label>
+                            <select name="sltRoleId" onChange={this.handleChange} className="form-control " id="userRole">
+                            {userRole.data.role.map((val, index) => {
+                                return <option key={index} value={val.roleId}>{val.roleName}</option>
+                            })}
+                            </select>
+                        </div>)
+                        :'Không tìm thấy nhân vật'
+                    }
                     <div id="appentHtml" />
                     <div className="clearfix" /> <input type="hidden" name="id_user" id="id_user" />
                     <div className="hd-Form"> Bước 2: Chọn phương thức thanh toán (*)</div>
@@ -129,6 +206,7 @@ class Paytogame extends Component {
                                     <div className="panel-body">
                                         <label htmlFor="sltCardType" className="col-sm-12 controll-label">
                                             <span>Loại thẻ</span>
+                                            {errorsCard.sltCardType && (<span className="input-error">{errorsCard.sltCardType[0]}</span>)}
                                             <select name="sltCardType" onChange={this.handleChange} className="form-control">
                                                 <option value="">Chọn loại thẻ</option>
                                                 <option value="HPC">HPCode</option>
@@ -137,13 +215,22 @@ class Paytogame extends Component {
                                         </label>
                                         <label htmlFor="txtSerie" className="col-sm-12 controll-label">
                                             <span>Số serie</span>
+                                            {errorsCard.txtSerie && (<span className="input-error">{errorsCard.txtSerie[0]}</span>)}
                                             <input type="text" name="txtSerie" className="form-control" onChange={this.handleChange} />
                                         </label>
                                         <label htmlFor="txtCardPin" className="col-sm-12 controll-label">
                                             <span>Mã thẻ</span>
+                                            {errorsCard.txtCardPin && (<span className="input-error">{errorsCard.txtCardPin[0]}</span>)}
                                             <input type="text" name="txtCardPin" className="form-control" onChange={this.handleChange} />
                                         </label>
                                         <button id="submitCard" className="col-sm-3 btn btn-primary">Thanh toán</button>
+                                        {
+                                        paymentReducer.chargeCard ?(<span className="message-success">
+                                            {paymentReducer.chargeCard.messages}
+                                        </span>):(<span className="message-alert">
+                                            {paymentReducer.chargeCard.messages}
+                                        </span>)
+                                        }
                                     </div>
                                 </form>
                             </div>
@@ -157,9 +244,11 @@ class Paytogame extends Component {
                             <div id="collapse2" className="panel-collapse collapse">
                                 <form onSubmit={this.handlePayByATM}>
                                     <div className="panel-body">
-                                        <label htmlFor="sltAmount" className="col-sm-12 controll-label"><span>Số tiền thanh toán (VNĐ)</span>
-                                            <select name="sltAmount" className="form-control">
-                                                <option>Chọn số tiền</option>
+                                        <label htmlFor="sltAmount" className="col-sm-12 controll-label">
+                                            <span>Số tiền thanh toán (VNĐ)</span>
+                                            {errorsAtm.sltAmount && (<span className="input-error">{errorsAtm.sltAmount[0]}</span>)}
+                                            <select name="sltAmount" className="form-control" onChange={this.handleChange}>
+                                                <option value="">Chọn số tiền</option>
                                                 <option value={10000}>10,000</option>
                                                 <option value={20000}>20,000</option>
                                                 <option value={50000}>50,000</option>
@@ -188,14 +277,24 @@ class Paytogame extends Component {
 }
 
 const mapStateToProps = (state) => ({
-    gamesReducer: state.gamesReducer
+    gamesReducer: state.gamesReducer,
+    paymentReducer: state.paymentReducer
 })
 
 const mapDispatchToProps = (dispatch, props) => {
     return {
         getDetailGameToGame: (productId) => {
             dispatch(gameActions.getDetailGameToGameRequest(productId))
-        }
+        },
+        chargeCard: (params) => {
+            dispatch(paymentActions.chargeCardRequest(params))
+        },
+        chargeAtm: (params) => {
+            dispatch(paymentActions.chargeAtmRequest(params))
+        },
+        getUserRole: ( serverId, userId, agent) => {
+            dispatch(paymentActions.getUserRoleRequest(serverId, userId, agent))
+        },
     }
 }
 

@@ -11,12 +11,21 @@ apiConfig.endpoint = {
     getPosts: 'post/get-list',
     getDetailPost: 'post/get-detail/',
     getGame: 'game/get-list',
-    getDetailGameToGame: 'server/list'
-}
-apiConfig.jwtToken = 'ADFASVASVASCAS'
+    getDetailGameToGame: 'server/list',
+    chargeCard: 'paymentGame/charge-card',
+    getRole: 'game/get-role',
+    chargeAtm: 'paymentGame/charge-atm',
+    getDetailGameToWallet: 'game/detail',
+    paymentWalletChargeCard: 'paymentWallet/charge-card',
+    paymentWalletChargeATM: 'paymentWallet/charge-atm',
+    paymentWalletChargeATMSuccess: 'paymentWallet/success-charge-atm',
+
+    getRole: 'game/get-role'
+};
+apiConfig.jwtToken = 'ADFASVASVASCAS';
 apiConfig.header = {
     contentJson: {
-      "Content-Type": "application/json"
+        "Content-Type": "application/json"
     },
 };
 
