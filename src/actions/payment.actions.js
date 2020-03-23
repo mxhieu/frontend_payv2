@@ -54,6 +54,23 @@ paymentActions.getUserRoleRequest = (serverId, userId, agent) => {
     }
 }
 
+paymentActions.chargeAtmSuccess = (paramStr) => {
+    let endpoint = ApiConfig.domain + ApiConfig.endpoint.paymentWalletChargeATMSuccess + paramStr;
+    console.log(endpoint)
+    return async (dispatch) => {
+        await Api.call('GET', endpoint ).then( result => {
+            dispatch(paymentActions.rsChargeAtmSuccess(result))
+        })
+    }
+}
+
+paymentActions.rsChargeAtmSuccess = (result) => {
+    return {
+        type: paymentActionTypes.CHARGE_ATM_SUCCESS,
+        result
+    }
+}
+
 paymentActions.getUserRole = (result) => {
     return {
         type: paymentActionTypes.GET_USER_ROLE,

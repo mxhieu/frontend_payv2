@@ -4,6 +4,8 @@ import "../assets/css/paytogame.css"
 import gameActions from "../actions/games.actions"
 import paymentActions from "../actions/payment.actions"
 import Validate from "../utils/Validate";
+import { withRouter } from 'react-router-dom';
+import * as _ from 'lodash';
 
 class Paytogame extends Component {
 
@@ -19,15 +21,32 @@ class Paytogame extends Component {
             txtCardPin: '',
             sltAmount: '',
             gameInfo: {},
+            chargeSuccessMSG : '',
             errorsAtm: [],
             errorsCard: [],
-            errorSelectServer: []
+            errorSelectServer: [],
+            errorSelectRole: []
         }
     }
 
     componentDidMount(){
         let {match} = this.props
         this.props.getDetailGameToGame(match.params.id)
+        let queryString = require('query-string');
+        let strParams = this.props.location.search;
+        let params = queryString.parse(strParams);
+        if (_.has(params, 'trans_id')) {
+            this.props.chargeAtmSuccess(strParams)
+            console.log(this.props)
+            if(this.props.paymentReducer.chargeAtmSuccess.messages !== null)
+            {
+                let modalATMReport = window.$('.modal-atm-report');
+                modalATMReport.modal('show');
+                modalATMReport.on('click', function () {
+                    modalATMReport.modal('hide')
+                });
+            }
+        }
     }
 
     handlePayByCard = (e) =>{
@@ -87,6 +106,7 @@ class Paytogame extends Component {
             sltAmount: []
         };
         let errorSelectServer = [];
+        let errorSelectRole = [];
         let isValid = true;
         if (Validate.isRequired( sltServer )) {
             errorSelectServer.push('Vui lòng chọn server');
@@ -97,16 +117,37 @@ class Paytogame extends Component {
             isValid = false;
         }
         if (Validate.isRequired( txtSerie )) {
-            errorsCard.txtSerie.push('Loại thẻ bắt buộc nhập');
+            errorsCard.txtSerie.push('Series bắt buộc nhập');
+            isValid = false;
+        }
+        if (Validate.minLength( txtSerie, 6 )) {
+            errorsCard.txtSerie.push('Series tối thiểu 6 ký tự');
+            isValid = false;
+        }
+        if (Validate.maxLength( txtSerie, 20 )) {
+            errorsCard.txtSerie.push('Series đa  20 ký tự');
             isValid = false;
         }
         if (Validate.isRequired( txtCardPin )) {
             errorsCard.txtCardPin.push('Mã thẻ bắt buộc nhập');
             isValid = false;
         }
+        if (Validate.minLength( txtCardPin, 6 )) {
+            errorsCard.txtCardPin.push('Mã thẻ tối thiểu 6 ký tự');
+            isValid = false;
+        }
+        if (Validate.maxLength( txtCardPin, 20 )) {
+            errorsCard.txtCardPin.push('Mã thẻ đa 20 ký tự');
+            isValid = false;
+        }
+        if(this.state.sltRoleId === ''){
+            errorSelectRole.push('không tìm thấy nhân vật')
+            isValid = false;
+        }
         this.setState({
             errorsCard: errorsCard,
-            errorSelectServer: errorSelectServer
+            errorSelectServer: errorSelectServer,
+            errorSelectRole: errorSelectRole
         })
         return isValid
     }
@@ -118,6 +159,7 @@ class Paytogame extends Component {
             sltAmount: []
         };
         let errorSelectServer = [];
+        let errorSelectRole = [];
         let isValid = true;
         if (Validate.isRequired( sltServer )) {
             errorSelectServer.push('Vui lòng chọn server');
@@ -127,9 +169,14 @@ class Paytogame extends Component {
             errorsAtm.sltAmount.push('Vui lòng chọn mệnh giá');
             isValid = false;
         }
+        if(this.state.sltRoleId === ''){
+            errorSelectRole.push('không tìm thấy nhân vật')
+            isValid = false;
+        }
         this.setState({
             errorsAtm: errorsAtm,
-            errorSelectServer: errorSelectServer
+            errorSelectServer: errorSelectServer,
+            errorSelectRole: errorSelectRole
         })
         
         return isValid
@@ -157,6 +204,11 @@ class Paytogame extends Component {
     }
 
     render() {
+        let chargeAtmMSG = '';
+        if(this.props.paymentReducer.chargeAtmSuccess.data !== undefined)
+        {
+            chargeAtmMSG = this.props.paymentReducer.chargeAtmSuccess.data.messages
+        }
         let server = this.props.gamesReducer.detail;
         let serverElement = null;
         if(server.length > 0)
@@ -165,7 +217,7 @@ class Paytogame extends Component {
                 return <option key={index} value={val.server_id}>{val.server_name}</option>
             })
         }
-        let {errorsCard, errorsAtm, errorSelectServer, gameInfo, userRole} = this.state;
+        let {errorsCard, errorsAtm, errorSelectServer, gameInfo, userRole, errorSelectRole} = this.state;
         let {paymentReducer} = this.props;
         return (
             <div className="container paytogame_container">
@@ -174,7 +226,7 @@ class Paytogame extends Component {
                     <div className="hd-Form"> Bước 1: Chọn thông tin nhân vật (*)</div>
                     <label htmlFor="sltServer" className="col-sm-12 controll-label" id="list_server"> Chọn server:</label>
                     {errorSelectServer && (<span className="input-error">{errorSelectServer[0]}</span>)}
-                    <select name="sltServer" value={this.state.sltServer} onChange={this.hanleGetRole} className="form-control " id="server_list">
+                    <select name="sltServer" onBlur={this.validatePayCard} value={this.state.sltServer} onChange={this.hanleGetRole} className="form-control " id="server_list">
                         <option value="">Chọn server</option>
                         {serverElement}
                     </select>
@@ -254,7 +306,7 @@ class Paytogame extends Component {
                                         <label htmlFor="sltAmount" className="col-sm-12 controll-label">
                                             <span>Số tiền thanh toán (VNĐ)</span>
                                             {errorsAtm.sltAmount && (<span className="input-error">{errorsAtm.sltAmount[0]}</span>)}
-                                            <select name="sltAmount" className="form-control" onChange={this.handleChange}>
+                                            <select onBlur={this.validatePayAtm} name="sltAmount" className="form-control" onChange={this.handleChange}>
                                                 <option value="">Chọn số tiền</option>
                                                 <option value={10000}>10,000</option>
                                                 <option value={20000}>20,000</option>
@@ -279,12 +331,29 @@ class Paytogame extends Component {
                                     </div>
                                 </form>
                             </div>
+                            
                         </div>
+                        {
+                            errorSelectRole.length > 0?
+                            <div style={{marginTop: "10px"}} className="alert alert-danger" role="alert">
+                                {errorSelectRole[0]}
+                            </div>:''
+                        }
+                        
                         <div className="message-alert">
                             NẠP HPCODE = 100% ; GATE = 100% ; VCOIN = 90% ; ATM = 100% (Thẻ HPCode có bán ở các cửa hàng của Payoo &amp; bán online tại Website Napthegame.net )
                         </div>
                     </div>
                     <div className="clearfix" />
+                    <div className="modal modal-atm-report fade" tabIndex="-1" role="dialog" data-backdrop="false">
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-body">
+                                    <p className={"text-center"}>{chargeAtmMSG}</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         )
@@ -311,7 +380,10 @@ const mapDispatchToProps = (dispatch, props) => {
         getUserRole: ( serverId, userId, agent) => {
             dispatch(paymentActions.getUserRoleRequest(serverId, userId, agent))
         },
+        chargeAtmSuccess: (paramStr) => {
+            dispatch(paymentActions.chargeAtmSuccess(paramStr))
+        }
     }
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Paytogame)
+export default connect(mapStateToProps, mapDispatchToProps)(withRouter(Paytogame))

@@ -1,6 +1,8 @@
 const CommonConfig = {};
 
 CommonConfig.assetDomain = 'http://dev-assets.phoeniz.com';
+CommonConfig.linkChangePassword = 'https://id.100d.mobi/';
+CommonConfig.linkAccountInfo = 'https://id.100d.mobi/';
 
 /**
  * Cards list

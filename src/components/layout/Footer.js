@@ -7,7 +7,7 @@ export default class Footer extends Component {
                 <div className="clearfix"></div>
                 <hr></hr>
                 <div className="container-fuild footer text-center">
-                    <p className="text-muted credit" style={{padding: '1em'}}>Copyright © 2018 by 100 DEGREES ENTERTAINMENT JSC</p>
+                    <p className="text-muted credit" style={{padding: '1em'}}>Đơn vị chủ quản: Công Ty TNHH Dịch Vụ Giải Trí Phượng Hoàng</p>
                 </div>
             </React.Fragment>
         )

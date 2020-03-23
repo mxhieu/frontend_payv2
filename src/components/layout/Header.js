@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import loginAction from "../../actions/login.actions.js";
 import postAction from "../../actions/post.actions";
+import CommonConfig from "../../config/CommonConfig";
 
 class Header extends Component {
 
@@ -27,9 +28,9 @@ class Header extends Component {
         else{
             rightTopBar = <li className=" dropdown"><a href="/" className="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">{login.data.data.username} <span className="caret" /></a>
                             <ul className="dropdown-menu dropdown-menu-right">
-                                <li><a href="https://id.100d.mobi/changepass">Đổi mật khẩu</a></li>
-                                <li><a href="https://id.100d.mobi/edit">Thông tin tài khoản</a></li>
-                                <li onClick={this.logout}><a href="#" >Đăng xuất</a></li>
+                                <li><a href={CommonConfig.linkChangePassword}>Đổi mật khẩu</a></li>
+                                <li><a href={CommonConfig.linkAccountInfo}>Thông tin tài khoản</a></li>
+                                <li onClick={this.logout}><a href="#">Đăng xuất</a></li>
                             </ul>
                         </li>
         }
@@ -51,7 +52,7 @@ class Header extends Component {
                         <span className="icon-bar" />
                     </button>
                     <Link className="navbar-brand" to="/">
-                        100d pay
+                        Phoeniz pay
                     </Link>
                     </div>
                     <div className="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
@@ -95,4 +96,4 @@ const mapDispatchToProps = (dispatch, props) => {
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(withRouter(Header));
+)((Header));

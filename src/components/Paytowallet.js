@@ -367,12 +367,27 @@ export default class Paytowallet extends Component {
             errors.serie = 'Vui lòng nhập số seri';
             isValid = false;
         }
+        if (Validate.maxLength(this.state.payItem.serie, 20)) {
+            errors.serie = 'Seri tối đa 20 ký tự';
+            isValid = false;
+        }
+        if (Validate.minLength(this.state.payItem.serie, 6)) {
+            errors.serie = 'Seri tối thiểu 6 ký tự';
+            isValid = false;
+        }
         // check number
         if (Validate.isRequired(this.state.payItem.number)) {
             errors.number = 'Vui lòng nhập mã thẻ';
             isValid = false;
         }
-
+        if (Validate.maxLength(this.state.payItem.number, 20)) {
+            errors.number = 'Mã thẻ tối đa 20 ký tự';
+            isValid = false;
+        }
+        if (Validate.minLength(this.state.payItem.number, 6)) {
+            errors.number = 'Mã thẻ tối thiểu 6 ký tự';
+            isValid = false;
+        }
         // set errors
         await this.setState({
             errors: errors
@@ -449,7 +464,7 @@ export default class Paytowallet extends Component {
                                     <div className="message-head clearfix handle-acc-role">
                                         <div className="user-detail">
                                             <h5 className="handle">Tài khoản : {this.state.username}</h5>
-                                            <h6 className="handle">Số dư : {this.state.balance} <u>đ</u></h6>
+                                            <h6 className="handle">Số dư : {this.state.balance.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</h6>
                                             <input type="hidden" defaultValue={0} name="balance"/>
                                             <input type="hidden" defaultValue={771866} name="id_user" id="id_user"/>
                                             <input type="hidden" defaultValue={0} name="amount" id="amount"/>
@@ -496,6 +511,7 @@ export default class Paytowallet extends Component {
                                                                 <select name="cardType" className="form-control valid"
                                                                         aria-invalid="false"
                                                                         onChange={this.handleChange}
+                                                                        onBlur={this.validatePayByCard}
                                                                 >
                                                                     <option value="">Chọn loại thẻ</option>
                                                                     {
@@ -516,7 +532,9 @@ export default class Paytowallet extends Component {
                                                                 }
                                                                 <input type="text" name="serie"
                                                                        className="form-control"
-                                                                       onChange={this.handleChange}/>
+                                                                       onChange={this.handleChange}
+                                                                       onBlur={this.validatePayByCard}
+                                                                       />
                                                             </label>
                                                             <label htmlFor="in_pin"
                                                                    className="col-sm-12 controll-label">
@@ -528,7 +546,9 @@ export default class Paytowallet extends Component {
                                                                 }
                                                                 <input type="text" name="number"
                                                                        className="form-control"
-                                                                       onChange={this.handleChange}/>
+                                                                       onChange={this.handleChange}
+                                                                       onBlur={this.validatePayByCard}
+                                                                       />
                                                             </label>
                                                             <button className="btn btn-info" id="btnXacnhan"
                                                                     type={"button"}
@@ -595,7 +615,7 @@ export default class Paytowallet extends Component {
                                                                         className="input-error">{this.state.errors.amount}</span>
                                                                 }
                                                                 <select name="amount" className="form-control"
-                                                                        onChange={this.handleChange}>
+                                                                        onChange={this.handleChange} onBlur={this.validatePayByATM}>
                                                                     <option value="">Chọn số tiền</option>
                                                                     {
                                                                         _.map(this.state.atmValuesList, (itemValue, itemIndex) =>
