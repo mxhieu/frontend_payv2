@@ -35,7 +35,9 @@ export default class Paytowallet extends Component {
                 status: null,
                 message: ''
             },
-            errors: {}
+            errors: {},
+            roleName: '',
+            atmResponseMessage: ''
         }
     }
 
@@ -43,13 +45,18 @@ export default class Paytowallet extends Component {
      * On component did mount event
      * @created 2020-03-18 LongTHk
      */
-    async componentDidMount() {
+    componentDidMount() {
         // get md5
         let md5 = require('md5');
         // get username
         let username = JSON.parse(localStorage.getItem('user')).data.username;
         // get query string
         let queryString = require('query-string');
+
+        // set inLoadingPage status
+        this.setState({
+            inLoadingPage: true
+        });
 
         // call api get page content
         let slug = this.props.match.match.params.slug;
@@ -67,34 +74,41 @@ export default class Paytowallet extends Component {
                     balance: data.balance,
                     game: Object.keys(data).length > 0 ? data.game[0] : null,
                     serverGroups: serverGroups
-                })
-            });
-
-        // call api check Charging ATM status
-        let strParams = this.props.match.location.search;
-        let params = await queryString.parse(strParams);
-        if (_.has(params, 'trans_id')) {
-            // set inLoadingPage status
-            this.setState({
-                inLoadingPage: true
-            });
-
-            let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
-            api.call('GET', endpointATMSuccess)
-                .then((response) => {
-                    // display messages
-                    alert(response.data.messages)
-                })
-                .catch((err) => {
-                    console.log(err)
-                })
-                .finally(() => {
-                    // release inLoadingPage status
-                    this.setState({
-                        inLoadingPage: false
-                    });
                 });
-        }
+
+                // call api check Charging ATM status
+                let strParams = this.props.match.location.search;
+                let params = queryString.parse(strParams);
+                if (_.has(params, 'trans_id')) {
+                    let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
+                    api.call('GET', endpointATMSuccess)
+                        .then((response) => {
+
+                            // set atm response message
+                            this.setState({
+                                atmResponseMessage: response.data.messages
+                            });
+                            // show modal
+                            let modalATMReport = window.$('.modal-atm-report');
+                            modalATMReport.modal('show');
+                            modalATMReport.on('click', function () {
+                                modalATMReport.modal('hide')
+                            });
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        });
+                }
+            })
+            .catch((err) => {
+                console.log(err)
+            })
+            .finally(() => {
+                // set inLoadingPage status
+                this.setState({
+                    inLoadingPage: false
+                });
+            });
     }
 
     /**
@@ -135,6 +149,46 @@ export default class Paytowallet extends Component {
                 [name]: value
             }
         }))
+    };
+
+    /**
+     * Get role name
+     * @param event
+     */
+    handleServerChanged = (event) => {
+        // get md5
+        let md5 = require('md5');
+
+        // get params
+        let userId = JSON.parse(localStorage.getItem('user')).data.id;
+        let sign = md5(userId + apiConfig.jwtToken);
+
+        // define endpoint
+        let endPoint = apiConfig.domain + apiConfig.endpoint.getRole +
+            '?server_id=' + event.target.value +
+            '&id_user=' + userId +
+            '&productAgent=' + this.state.game.agent +
+            '&sign=' + sign;
+
+        // call api
+        api.call('GET', endPoint)
+            .then((response) => {
+                // get response data
+                let responseData = response.data;
+
+                if (responseData.status) {
+                    this.setState({
+                        roleName: responseData.data.role[0].roleName
+                    })
+                } else {
+                    this.setState({
+                        roleName: responseData.messages
+                    })
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
     };
 
     /**
@@ -358,6 +412,9 @@ export default class Paytowallet extends Component {
      * @created 2020-03-18 LongTHK
      */
     render() {
+        /**
+         * Loading page animation
+         */
         if (this.state.inLoadingPage) {
             return (
                 <div style={{textAlign: "center"}}>
@@ -366,6 +423,9 @@ export default class Paytowallet extends Component {
             )
         }
 
+        /**
+         * Render in case game not found
+         */
         if (this.state.game === null) {
             return (
                 <div>
@@ -373,6 +433,10 @@ export default class Paytowallet extends Component {
                 </div>
             )
         }
+
+        /**
+         * Page render
+         */
         return (
             <div className="container paytowallet_container">
                 <div className="row box">
@@ -543,7 +607,8 @@ export default class Paytowallet extends Component {
                                                             </label>
                                                             <button className="btn btn-info" id="btnXacnhan"
                                                                     type={"button"} data-id="the-atm"
-                                                                    onClick={this.payByATM} disabled={this.state.inProcessing}>
+                                                                    onClick={this.payByATM}
+                                                                    disabled={this.state.inProcessing}>
                                                                 {
                                                                     !this.state.inProcessing &&
                                                                     <span>Thanh toán</span>
@@ -605,6 +670,7 @@ export default class Paytowallet extends Component {
                                             <select name="server_id" className="form-control "
                                                     id="server_list"
                                                     disabled={this.state.isDisableSelectServers}
+                                                    onChange={this.handleServerChanged}
                                             >
                                                 <option value="">Chọn server</option>
                                                 {
@@ -616,7 +682,11 @@ export default class Paytowallet extends Component {
                                                 }
                                             </select>
                                         </div>
-                                        <div id="appentHtml"/>
+                                        <div id="appentHtml">
+                                            <div className="role-name">
+                                                {this.state.roleName}
+                                            </div>
+                                        </div>
                                         <div className="clearfix"/>
                                     </div>
                                 </div>
@@ -651,6 +721,16 @@ export default class Paytowallet extends Component {
                             </div>
                         </div>
                     </form>
+                </div>
+
+                <div className="modal modal-atm-report fade" tabIndex="-1" role="dialog" data-backdrop="false">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            <div className="modal-body">
+                                <p className={"text-center"}>{this.state.atmResponseMessage}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         )

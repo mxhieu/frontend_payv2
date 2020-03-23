@@ -31,6 +31,7 @@ const loginReducer = (state = initialState, action) => {
         }
         case loginActionTypes.LOGOUT:{
             localStorage.removeItem("user");
+            state.isLogged = false;
             return {
                 ...state
             };

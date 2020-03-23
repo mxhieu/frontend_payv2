@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
-
-import { Link, withRouter,Redirect } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { connect } from "react-redux";
 import loginAction from "../../actions/login.actions.js";
 import postAction from "../../actions/post.actions";
@@ -30,7 +29,7 @@ class Header extends Component {
                             <ul className="dropdown-menu dropdown-menu-right">
                                 <li><a href="https://id.100d.mobi/changepass">Đổi mật khẩu</a></li>
                                 <li><a href="https://id.100d.mobi/edit">Thông tin tài khoản</a></li>
-                                <li><a onClick={this.logout} href="/#" >Đăng xuất</a></li>
+                                <li onClick={this.logout}><a href="#" >Đăng xuất</a></li>
                             </ul>
                         </li>
         }
