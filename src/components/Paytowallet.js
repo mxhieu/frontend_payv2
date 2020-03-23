@@ -36,7 +36,8 @@ export default class Paytowallet extends Component {
                 message: ''
             },
             errors: {},
-            roleName: ''
+            roleName: '',
+            atmResponseMessage: ''
         }
     }
 
@@ -57,21 +58,6 @@ export default class Paytowallet extends Component {
             inLoadingPage: true
         });
 
-        // call api check Charging ATM status
-        let strParams = this.props.match.location.search;
-        let params = queryString.parse(strParams);
-        if (_.has(params, 'trans_id')) {
-            let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
-            api.call('GET', endpointATMSuccess)
-                .then((response) => {
-                    // display messages
-                    alert(response.data.messages)
-                })
-                .catch((err) => {
-                    console.log(err)
-                });
-        }
-
         // call api get page content
         let slug = this.props.match.match.params.slug;
         let sign = md5(username + apiConfig.jwtToken);
@@ -89,7 +75,31 @@ export default class Paytowallet extends Component {
                     balance: data.balance,
                     game: Object.keys(data).length > 0 ? data.game[0] : null,
                     serverGroups: serverGroups
-                })
+                });
+
+                // call api check Charging ATM status
+                let strParams = this.props.match.location.search;
+                let params = queryString.parse(strParams);
+                if (_.has(params, 'trans_id')) {
+                    let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
+                    api.call('GET', endpointATMSuccess)
+                        .then((response) => {
+
+                            // set atm response message
+                            this.setState({
+                                atmResponseMessage: response.data.messages
+                            });
+                            // show modal
+                            let modalATMReport = window.$('.modal-atm-report');
+                            modalATMReport.modal('show');
+                            modalATMReport.on('click', function () {
+                                modalATMReport.modal('hide')
+                            });
+                        })
+                        .catch((err) => {
+                            console.log(err)
+                        });
+                }
             })
             .catch((err) => {
                 console.log(err)
@@ -714,11 +724,11 @@ export default class Paytowallet extends Component {
                     </form>
                 </div>
 
-                <div className="modal" tabIndex="-1" role="dialog">
+                <div className="modal modal-atm-report fade" tabIndex="-1" role="dialog" data-backdrop="false">
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-body">
-                                <p>Modal body text goes here.</p>
+                                <p className={"text-center"}>{this.state.atmResponseMessage}</p>
                             </div>
                         </div>
                     </div>
