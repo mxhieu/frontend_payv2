@@ -27,6 +27,7 @@ export default class Paytowallet extends Component {
             atmValuesList: commonConfig.ATMValuesList,
             serverGroups: [],
             serversList: [],
+            goldsList: [],
             isDisableSelectServers: true,
             payItem: {},
             inLoadingPage: false,
@@ -36,8 +37,10 @@ export default class Paytowallet extends Component {
                 message: ''
             },
             errors: {},
-            roleName: '',
-            atmResponseMessage: ''
+            chargeGameItem: {},
+            chargeGameResult: {},
+            rolesList: null,
+            modalContent: ''
         }
     }
 
@@ -73,7 +76,8 @@ export default class Paytowallet extends Component {
                     username: username,
                     balance: data.balance,
                     game: Object.keys(data).length > 0 ? data.game[0] : null,
-                    serverGroups: serverGroups
+                    serverGroups: serverGroups,
+                    goldsList: data.golds
                 });
 
                 // call api check Charging ATM status
@@ -83,17 +87,20 @@ export default class Paytowallet extends Component {
                     let endpointATMSuccess = apiConfig.domain + apiConfig.endpoint.paymentWalletChargeATMSuccess + strParams;
                     api.call('GET', endpointATMSuccess)
                         .then((response) => {
-
                             // set atm response message
                             this.setState({
-                                atmResponseMessage: response.data.messages
+                                modalContent: response.data.messages
                             });
+
+                            // create modal
+                            let modal = window.$('.modal-notification');
+                            // modal close action
+                            modal.on('click', function () {
+                                modal.modal('hide')
+                            });
+
                             // show modal
-                            let modalATMReport = window.$('.modal-atm-report');
-                            modalATMReport.modal('show');
-                            modalATMReport.on('click', function () {
-                                modalATMReport.modal('hide')
-                            });
+                            modal.modal('show');
                         })
                         .catch((err) => {
                             console.log(err)
@@ -162,10 +169,11 @@ export default class Paytowallet extends Component {
         // get params
         let userId = JSON.parse(localStorage.getItem('user')).data.id;
         let sign = md5(userId + apiConfig.jwtToken);
+        let serverId = event.target.value;
 
         // define endpoint
         let endPoint = apiConfig.domain + apiConfig.endpoint.getRole +
-            '?server_id=' + event.target.value +
+            '?server_id=' + serverId +
             '&id_user=' + userId +
             '&productAgent=' + this.state.game.agent +
             '&sign=' + sign;
@@ -176,19 +184,136 @@ export default class Paytowallet extends Component {
                 // get response data
                 let responseData = response.data;
 
+                // set roles list
                 if (responseData.status) {
+                    // get roles list
+                    let rolesList = responseData.data.role;
+
+                    // set roles list
                     this.setState({
-                        roleName: responseData.data.role[0].roleName
-                    })
+                        rolesList: rolesList
+                    });
+
+                    // set charge game item
+                    this.setState({
+                        chargeGameItem: {
+                            serverId: serverId,
+                            roleId: rolesList[0].roleId
+                        }
+                    });
                 } else {
+                    // clear roles list
                     this.setState({
-                        roleName: responseData.messages
+                        rolesList: []
+                    });
+
+                    // clear charge game item
+                    this.setState({
+                        chargeGameItem: {}
                     })
                 }
             })
             .catch((error) => {
                 console.log(error)
             });
+    };
+
+    /**
+     * Open charge game modal
+     * @param event
+     * @returns {Promise<void>}
+     */
+    openModal = (event) => {
+        // get gold id
+        let goldId = window.$(event.target).data('gold-id');
+
+        if (window.$(event.target).data('amount') > this.state.balance) {
+            // set state
+            this.setState({
+                modalContent: 'Không đủ số dư trong tài khoản, hãy chọn mệnh giá thấp hơn hoặc nạp thêm tiền vào ví để tiếp tục giao dịch'
+            });
+            // create modal
+            let modal = window.$('.modal-notification');
+            // modal close action
+            modal.on('click', function () {
+                modal.modal('hide')
+            });
+
+            // show modal
+            modal.modal('show');
+        } else {
+            // get gold id
+            this.setState(prevState => ({
+                chargeGameItem: {
+                    ...prevState.chargeGameItem,
+                    goldId: goldId
+                }
+            }));
+
+            // create modal
+            let modal = window.$('.modal-confirm');
+            // modal close action
+            modal.on('hidden.bs.modal', function () {
+                this.setState({
+                    chargeGameResult: {}
+                })
+            }.bind(this));
+
+            // show modal
+            modal.modal('show');
+        }
+    };
+
+    /**
+     * Action on change role
+     * @param event
+     */
+    changeRoleId = (event) => {
+        this.setState(prevState => ({
+            chargeGameItem: {
+                ...prevState,
+                roleId: event.target.value
+            }
+        }))
+    };
+
+    /**
+     * Charge game
+     * @param event
+     */
+    chargeGame = (event) => {
+        // stop propagation
+        event.stopPropagation();
+
+        // get md5
+        let md5 = require('md5');
+
+        // create end point
+        let endPoint = apiConfig.domain + apiConfig.endpoint.payToGame +
+            '?roleId=' + this.state.chargeGameItem.roleId +
+            '&goldId=' + this.state.chargeGameItem.goldId +
+            '&username=' + this.state.username +
+            '&productAgent=' + this.state.game.agent +
+            '&serverId=' + this.state.chargeGameItem.serverId +
+            '&sign=' + md5(this.state.username + apiConfig.jwtToken);
+
+        // call api
+        api.call('GET', endPoint)
+            .then((response) => {
+                // get response data
+                let responseData = response.data;
+
+                // set state
+                this.setState({
+                    chargeGameResult: {
+                        status: responseData.status,
+                        message: responseData.messages
+                    }
+                });
+            })
+            .catch((err) => {
+                console.log('err');
+            })
     };
 
     /**
@@ -703,32 +828,72 @@ export default class Paytowallet extends Component {
                                             </select>
                                         </div>
                                         <div id="appentHtml">
-                                            <div className="role-name">
-                                                {this.state.roleName}
+                                            <label htmlFor="server_list"
+                                                   className="col-sm-12 controll-label"
+                                                   style={{width: 'auto'}}>&nbsp;
+                                            </label>
+                                            {
+                                                this.state.rolesList !== null &&
+                                                this.state.rolesList.length > 0 &&
+                                                <div>
+                                                    <select name="rolesList" className="form-control "
+                                                            id="server_list" onChange={this.changeRoleId}>
+                                                        {
+                                                            _.map(this.state.rolesList, (roleValue, roleIndex) =>
+                                                                <option key={roleIndex}
+                                                                        value={roleValue.roleId}>{roleValue.roleName}</option>
+                                                            )
+                                                        }
+                                                    </select>
+                                                </div>
+                                            }
+                                            {
+                                                this.state.rolesList !== null &&
+                                                this.state.rolesList.length === 0 &&
+                                                <div className="role-name">
+                                                    Không tìm thấy nhân vật game
+                                                </div>
+                                            }
+                                        </div>
+                                        <div className="clearfix"/>
+                                    </div>
+                                </div>
+                            </div>
+                            {
+                                this.state.rolesList !== null &&
+                                this.state.rolesList.length > 0 &&
+                                <div className="message-item" id="accRang">
+                                    <div className="message-inner">
+                                        <div className="message-head clearfix">
+                                            <div className="user-detail">
+                                                <h5 className="handle">Chọn gói vật phẩm</h5>
+                                                <p className="tab" id="coingold">Gói Nguyên Bảo</p>
+                                                <p className="tab" id="coingift">Gói Quà Đặc Biệt</p>
                                             </div>
                                         </div>
-                                        <div className="clearfix"/>
-                                    </div>
-                                </div>
-                            </div>
-                            <div className="message-item" id="accRang">
-                                <div className="message-inner">
-                                    <div className="message-head clearfix">
-                                        <div className="user-detail">
-                                            <h5 className="handle">Chọn gói vật phẩm</h5>
-                                            <p className="tab" id="coingold">Gói Nguyên Bảo</p>
-                                            <p className="tab" id="coingift">Gói Quà Đặc Biệt</p>
+                                        <div className="qa-message-content">
+                                            <div className="form-group resultCoin">
+                                                <div id="showcoingold">
+                                                    {
+                                                        _.map(this.state.goldsList, (goldItemValue, goldItemIndex) =>
+                                                            <div className="gold-item" key={goldItemIndex}>
+                                                                <img
+                                                                    src={commonConfig.assetDomain + goldItemValue.image}
+                                                                    data-amount={goldItemValue.amount}
+                                                                    data-gold-id={goldItemValue.id}
+                                                                    onClick={this.openModal}
+                                                                />
+                                                            </div>
+                                                        )
+                                                    }
+                                                </div>
+                                                <div id="showcoingift"/>
+                                            </div>
+                                            <div className="clearfix"/>
                                         </div>
                                     </div>
-                                    <div className="qa-message-content">
-                                        <div className="form-group resultCoin">
-                                            <div id="showcoingold"/>
-                                            <div id="showcoingift"/>
-                                        </div>
-                                        <div className="clearfix"/>
-                                    </div>
                                 </div>
-                            </div>
+                            }
                             <div id="myModal" className="modal">
                                 <div className="modal-content clearfix">
                                     <h1>Xác nhận giao dịch</h1>
@@ -743,11 +908,77 @@ export default class Paytowallet extends Component {
                     </form>
                 </div>
 
-                <div className="modal modal-atm-report fade" tabIndex="-1" role="dialog" data-backdrop="false">
+                <div className="modal modal-notification fade" tabIndex="-1" role="dialog" data-backdrop="false">
                     <div className="modal-dialog" role="document">
                         <div className="modal-content">
                             <div className="modal-body">
-                                <p className={"text-center"}>{this.state.atmResponseMessage}</p>
+                                <p className={"text-center"}>{this.state.modalContent}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="modal modal-confirm fade" tabIndex="-1" role="dialog" data-backdrop="false">
+                    <div className="modal-dialog" role="document">
+                        <div className="modal-content">
+                            {
+                                Object.keys(this.state.chargeGameItem).length > 0 &&
+                                <div className="modal-body">
+                                    <p>
+                                        <b>Server:</b>&nbsp;
+                                        {
+                                            this.state.serversList[_.findIndex(this.state.serversList, function (item) {
+                                                return item.server_id === this.state.chargeGameItem.serverId
+                                            }.bind(this))].server_name
+                                        }
+                                    </p>
+                                    {
+                                        this.state.chargeGameItem.hasOwnProperty('goldId') &&
+                                        <p>
+                                            <b>Gói nạp:</b>&nbsp;
+                                            {
+                                                this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
+                                                    return item.id === this.state.chargeGameItem.goldId
+                                                }.bind(this))].gold
+                                            }
+                                        </p>
+                                    }
+                                    <p>
+                                        <b>Số dư hiện tại:</b>&nbsp;{ this.state.balance.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) }
+                                    </p>
+                                    {
+                                        this.state.chargeGameItem.hasOwnProperty('goldId') &&
+                                        <p>
+                                            <b>Số tiền cần thành toán:</b>&nbsp;
+                                            {
+                                                this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
+                                                    return item.id === this.state.chargeGameItem.goldId
+                                                }.bind(this))].amount.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
+                                            }
+                                        </p>
+                                    }
+                                    {
+                                        this.state.chargeGameItem.hasOwnProperty('goldId') &&
+                                        <p>
+                                            <b>Số dư còn lại:</b>&nbsp;
+                                            {
+                                                (this.state.balance - this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
+                                                    return item.id === this.state.chargeGameItem.goldId
+                                                }.bind(this))].amount).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
+                                            }
+                                        </p>
+                                    }
+                                </div>
+                            }
+                            <div className="modal-footer">
+                                <div
+                                    className={(this.state.chargeGameResult.status !== 0) ? 'text-center text-success' : 'text-center text-danger'}>
+                                    {this.state.chargeGameResult.message}
+                                </div>
+                                <button type={"button"} className="btn btn-primary" onClick={this.chargeGame}>Nạp vào
+                                    game
+                                </button>
+                                <button type={"button"} className="btn btn-danger" data-dismiss="modal">Đóng</button>
                             </div>
                         </div>
                     </div>

@@ -238,10 +238,6 @@ label#list_server {
     }
 }
 
-#accRang {
-    display: none;
-}
-
 p#sumServer,
 p#sumInfo {
     margin: 0;
@@ -468,4 +464,29 @@ p#sumInfo {
 
 .modal-backdrop {
     background-color: rgba(255, 255, 255, 0);
+}
+
+.gold-item {
+    width: 25%;
+    padding: 10px;
+    float: left;
+    box-sizing: border-box;
+}
+
+.gold-item img {
+    width: 100%;
+}
+
+.modal-confirm .btn {
+    margin: 0;
+    width: 49%;
+}
+
+.modal-confirm .btn-danger {
+    background-color: #DE4D38 !important;
+    border: none;
+}
+
+.modal-confirm .btn:nth-child(:last-child) {
+    margin-left: 2%;
 }
