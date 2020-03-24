@@ -944,7 +944,7 @@ export default class Paytowallet extends Component {
                                         </p>
                                     }
                                     <p>
-                                        <b>Số dư hiện tại:</b>&nbsp;{ this.state.balance }
+                                        <b>Số dư hiện tại:</b>&nbsp;{ this.state.balance.toLocaleString('it-IT', {style : 'currency', currency : 'VND'}) }
                                     </p>
                                     {
                                         this.state.chargeGameItem.hasOwnProperty('goldId') &&
@@ -953,7 +953,7 @@ export default class Paytowallet extends Component {
                                             {
                                                 this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
                                                     return item.id === this.state.chargeGameItem.goldId
-                                                }.bind(this))].amount
+                                                }.bind(this))].amount.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
                                             }
                                         </p>
                                     }
@@ -962,9 +962,9 @@ export default class Paytowallet extends Component {
                                         <p>
                                             <b>Số dư còn lại:</b>&nbsp;
                                             {
-                                                this.state.balance - this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
+                                                (this.state.balance - this.state.goldsList[_.findIndex(this.state.goldsList, function (item) {
                                                     return item.id === this.state.chargeGameItem.goldId
-                                                }.bind(this))].amount
+                                                }.bind(this))].amount).toLocaleString('it-IT', {style : 'currency', currency : 'VND'})
                                             }
                                         </p>
                                     }
