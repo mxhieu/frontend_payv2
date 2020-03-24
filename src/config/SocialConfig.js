@@ -12,4 +12,9 @@ SocialConfig.google = {
     app_secret: '4Ydu3UzLk7FympAARoobcyCg'
 }
 
+SocialConfig.apple = {
+    client_id: 'v2signin.100d.mobi',
+    redirect_url: 'https://localhost:3000/login'
+}
+
 export default SocialConfig;

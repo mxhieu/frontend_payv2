@@ -30,7 +30,7 @@ class Header extends Component {
                             <ul className="dropdown-menu dropdown-menu-right">
                                 <li><a href={CommonConfig.linkChangePassword}>Đổi mật khẩu</a></li>
                                 <li><a href={CommonConfig.linkAccountInfo}>Thông tin tài khoản</a></li>
-                                <li onClick={this.logout}><a href="#">Đăng xuất</a></li>
+                                <li onClick={this.logout}><a href="/#">Đăng xuất</a></li>
                             </ul>
                         </li>
         }

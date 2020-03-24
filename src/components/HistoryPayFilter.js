@@ -90,12 +90,13 @@ class HistoryPayFilter extends Component {
         }
         return (
             <form method="POST" name="cardhistory" onSubmit={this.handleFilter} id="cardhistory">
-                <div className="box-row"><label htmlFor="config-form" className="col-sm-2 controll-label">Product:</label>
-                <select name="sltGame" className="form-control" id="config-form" onChange={this.handleChange}>
-                    <option value>All</option>
-                    {gameElement}
-                </select></div>
-                <div className="box-row">
+                <div className="box-row width-100"><label htmlFor="config-form" className="col-sm-2 controll-label">Product:</label>
+                    <select name="sltGame" className="form-control" id="config-form" onChange={this.handleChange}>
+                        <option value>All</option>
+                        {gameElement}
+                    </select>
+                </div>
+                <div className="box-row width-100">
                     <label htmlFor="config-demo" className="controll-label col-sm-2">Time:</label>
                     <DateRangePicker
                         autoApply={true}

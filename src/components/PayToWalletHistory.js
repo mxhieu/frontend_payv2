@@ -2,7 +2,6 @@ import React, { Component } from 'react'
 import HistoryPayFilter from './HistoryPayFilter'
 import PayBreadcrumb from './PayBreadcrumb'
 import { withRouter } from 'react-router-dom';
-import * as _ from 'lodash';
 
 class PayToWalletHistory extends Component {
 
@@ -47,35 +46,37 @@ class PayToWalletHistory extends Component {
                     <PayBreadcrumb match={match}></PayBreadcrumb>
                     <h3>Lịch sử ví</h3>
                     <HistoryPayFilter setData={this.getChildData}></HistoryPayFilter>
-                    <table className="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <td>Transaction ID</td>
-                                <td>Game</td>
-                                <td>Loại thẻ</td>
-                                <td>Mệnh giá</td>
-                                <td>Giá trị duy đổi</td>
-                                <td>Mã lỗi</td>
-                                <td>Thông báo</td>
-                                <td>Ngày thực hiện</td>
-                            </tr>
-                            {
-                                historyElement !== null?
-                                historyElement:
+                    <div className="table-responsive" style={{width: '100%'}}>
+                        <table className="table table-bordered">
+                            <tbody>
                                 <tr>
-                                    <td>Không có dữ liệu</td>
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
+                                    <td>Transaction ID</td>
+                                    <td>Game</td>
+                                    <td>Loại thẻ</td>
+                                    <td>Mệnh giá</td>
+                                    <td>Giá trị duy đổi</td>
+                                    <td>Mã lỗi</td>
+                                    <td>Thông báo</td>
+                                    <td>Ngày thực hiện</td>
                                 </tr>
-                            }
-                            
-                        </tbody>
-                    </table>
+                                {
+                                    historyElement !== null?
+                                    historyElement:
+                                    <tr>
+                                        <td>Không có dữ liệu</td>
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                    </tr>
+                                }
+                                
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         )

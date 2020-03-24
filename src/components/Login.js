@@ -6,7 +6,7 @@ import { connect } from "react-redux";
 import loginAction from '../actions/login.actions';
 import FacebookLogin from "./FacebookLogin";
 import GoogleLogin from "./GoogleLogin";
-// import AppleLogin from "./AppleLogin";
+import AppleLogin from "./AppleLogin";
 
 class Login extends Component {
 
@@ -95,7 +95,7 @@ class Login extends Component {
                     <h4>Đăng nhập bằng tài khoản khác</h4>
                     <FacebookLogin></FacebookLogin>
                     <GoogleLogin></GoogleLogin>
-                    {/* <AppleLogin></AppleLogin> */}
+                    <AppleLogin></AppleLogin>
                 </div>
                 <div className="col-md-8 box-right">
                     <h4>Đăng nhập bằng 100D ID</h4>

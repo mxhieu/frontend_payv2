@@ -45,32 +45,34 @@ class PayToGameHistory extends Component {
                     <PayBreadcrumb match={match}></PayBreadcrumb>
                     <h3>Lịch sử nạp vào game</h3>
                     <HistoryPayFilter setData={this.getChildData}></HistoryPayFilter>
-                    <table className="table table-bordered">
-                        <tbody>
-                            <tr>
-                                <td>Transaction ID</td>
-                                <td>Mệnh giá</td>
-                                <td>Giá trị duy đổi</td>
-                                <td>Game</td>
-                                <td>Server</td>
-                                <td>Trạng thái nạp vào game</td>
-                                <td>Ngày thực hiện</td>
-                            </tr>
-                            {
-                                dataElement !== null?dataElement:
+                    <div className="table-responsive" style={{width: '100%'}}>
+                        <table className="table table-bordered">
+                            <tbody>
                                 <tr>
-                                    <td>Không có dữ liệu</td>
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
-                                    <td />
+                                    <td>Transaction ID</td>
+                                    <td>Mệnh giá</td>
+                                    <td>Giá trị duy đổi</td>
+                                    <td>Game</td>
+                                    <td>Server</td>
+                                    <td>Trạng thái nạp vào game</td>
+                                    <td>Ngày thực hiện</td>
                                 </tr>
-                            }
-                            
-                        </tbody>
-                    </table>
+                                {
+                                    dataElement !== null?dataElement:
+                                    <tr>
+                                        <td>Không có dữ liệu</td>
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                        <td />
+                                    </tr>
+                                }
+                                
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         )

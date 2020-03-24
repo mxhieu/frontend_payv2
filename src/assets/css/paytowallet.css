@@ -156,6 +156,11 @@
     padding-left: 25px;
 }
 
+.paytowallet_container .row{
+    margin-right: unset; 
+    margin-left: unset;
+}
+
 .img-check {
     width: 100%;
     padding: 1em;

@@ -6,7 +6,7 @@ import PayToGamePage from './pages/paymentpage/PayToGamePage';
 import PayToWalletPage from './pages/paymentpage/PayToWalletPage';
 import HistoryPayToGamePage from './pages/paymentpage/HistoryPayToGamePage';
 import HistoryPayToWalletPage from './pages/paymentpage/HistoryPayToWalletPage';
-import Test from './pages/Test';
+import PageNotFound from './pages/PageNotFound';
 const Routes = [
     {
         path: "/login",
@@ -47,6 +47,11 @@ const Routes = [
         main: () => <HistoryPayToWalletPage />,
         isLogged: true
     },
+    {
+        path: "*",
+        exact: false,
+        main: () => <PageNotFound />
+      },
 ]
 
 export default Routes

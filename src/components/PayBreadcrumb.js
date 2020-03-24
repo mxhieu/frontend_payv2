@@ -3,10 +3,6 @@ import { NavLink } from "react-router-dom";
 
 export default class PayBreadcrumb extends Component {
 
-    constructor(props){
-        super(props)
-    }
-
     render() {
         let {match} = this.props
         let payUrl = "/nap-vi/"+match.params.slug+"-g"+match.params.id

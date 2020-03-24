@@ -6,18 +6,17 @@ let initialState = {
 
 const isLoadingReducer = (state = initialState, action) => {
     switch (action.type) {
-        // show loader
         case isLoadingActionType.SHOW_LOADING:{
             return {
                 isLoading: true
             };
-        };
+        }
         // hide loader
         case isLoadingActionType.HIDE_LOADING:{
             return {
                 isLoading: false
             };
-        };
+        }
         default:{
             return state;
         }

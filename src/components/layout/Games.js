@@ -22,6 +22,7 @@ export class Games extends Component {
             var { gamesReducer } = this.props;
             var gameElemnt = gamesReducer.data.map((val, index) => {
                 let gameItem = '';
+                // console.log(val.status)
                 if(val.status === 1)
                 {
                     if(val.payment_type === 'wallet')
@@ -67,9 +68,10 @@ export class Games extends Component {
                                 {gameItem}
                             </div>
                 }
+                return null;
             })
+            
         }
-        
         
         return (
             <div className="container-fuild product">

@@ -334,3 +334,38 @@ nav.navbar.navbar-default {
 {
     color: #ff5a5f!important;
 }
+
+@media only screen and (max-width: 640px)
+{
+    .pull-right {
+        float: left !important;
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+    .navbar-nav{
+        margin: 0;
+    }
+
+    .paytogamehistory .row
+    {
+        margin-right: unset;
+        margin-left: unset;
+    }
+
+    .width-100, .react-bootstrap-daterangepicker-container, .paytogamehistory #submitbutton{
+        width: 100%!important;
+    }
+    .paytogamehistory #submitbutton
+    {
+        margin-bottom: 10px;
+    }
+}
+#appleid-signin{
+    width: 80%;
+    margin-top: 10px;
+    height: 50px;
+}
+#appleid-signin img{
+    height: 100%;
+    width: 100%;
+}

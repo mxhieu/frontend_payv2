@@ -1,5 +1,6 @@
 import React, { Component } from 'react'
 import ReactAppleLogin from 'react-apple-login'
+import SocialConfig from "../config/SocialConfig"
 
 class AppleLogin extends Component {
 
@@ -13,7 +14,23 @@ class AppleLogin extends Component {
 
     render() {
         return (
-            <ReactAppleLogin clientId="v2signin.100d.mobi" redirectURI="https://localhost:3000/login" />
+            <ReactAppleLogin clientId={SocialConfig.apple.client_id} redirectURI={SocialConfig.apple.redirect_url}
+            responseType={"code"} 
+            responseMode={"query"}
+            designProp={
+                {
+                   height: 50,
+                   width: 255,
+                   color: "black",
+                   border: false,
+                   type: "sign-in",
+                   border_radius: 10,
+                   scale: 1,
+                   locale: "vi_VI", 
+                }
+            }
+         
+            />
         )
             // <a href="/#" onClick={this.onHandleClick}>
             //     <div className="row-login" id="btnApple">
