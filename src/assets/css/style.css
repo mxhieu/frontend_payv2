@@ -285,8 +285,9 @@ nav.navbar.navbar-default {
     margin-bottom: 1em;
 }
 .paytogamehistory #submitbutton {
-    float: right;
+    /* float: right; */
     width: 200px;
+    margin: 0;
 }
 .paytogamehistory .table tr {
     color: #fff;

@@ -1,15 +1,52 @@
 import React, { Component } from 'react'
 import HistoryPayFilter from './HistoryPayFilter'
 import PayBreadcrumb from './PayBreadcrumb'
+import { withRouter } from 'react-router-dom';
+import * as _ from 'lodash';
 
-export default class PayToWalletHistory extends Component {
+class PayToWalletHistory extends Component {
+
+    constructor(props){
+        super(props)
+        this.state= {
+            historyCard: [],
+            gameData: []
+        }
+    }
+
+    getChildData = (data, gameData) => {
+        this.setState({
+            historyCard: data,
+            gameData: gameData
+        });
+    }
+
     render() {
+        let {match} = this.props
+        let {historyCard, gameData} = this.state;
+        let historyElement = null;
+        if(historyCard.length > 0)
+        {
+            historyElement = historyCard.map((val, index) => {
+                const gameInfo = gameData.filter(e => e.agent.includes(val.product_id));
+                return (<tr key={index}>
+                            <td>{val.transaction_id}</td>
+                            <td>{gameInfo[0].name}</td>
+                            <td>{val.card_type}</td>
+                            <td>{val.amount.toLocaleString('it-IT', {style : 'currency', currency : 'VND'})}</td>
+                            <td>{val.gold}</td>
+                            <td>{val.card_status}</td>
+                            <td>{val.card_message}</td>
+                            <td>{val.create_date}</td>
+                        </tr>)
+            })
+        }
         return (
             <div className="container paytogamehistory">
                 <div className="row box">
-                    <PayBreadcrumb></PayBreadcrumb>
+                    <PayBreadcrumb match={match}></PayBreadcrumb>
                     <h3>Lịch sử ví</h3>
-                    <HistoryPayFilter></HistoryPayFilter>
+                    <HistoryPayFilter setData={this.getChildData}></HistoryPayFilter>
                     <table className="table table-bordered">
                         <tbody>
                             <tr>
@@ -22,16 +59,21 @@ export default class PayToWalletHistory extends Component {
                                 <td>Thông báo</td>
                                 <td>Ngày thực hiện</td>
                             </tr>
-                            <tr>
-                                <td>Không có dữ liệu</td>
-                                <td />
-                                <td />
-                                <td />
-                                <td />
-                                <td />
-                                <td />
-                                <td />
-                            </tr>
+                            {
+                                historyElement !== null?
+                                historyElement:
+                                <tr>
+                                    <td>Không có dữ liệu</td>
+                                    <td />
+                                    <td />
+                                    <td />
+                                    <td />
+                                    <td />
+                                    <td />
+                                    <td />
+                                </tr>
+                            }
+                            
                         </tbody>
                     </table>
                 </div>
@@ -39,3 +81,6 @@ export default class PayToWalletHistory extends Component {
         )
     }
 }
+
+
+export default withRouter(PayToWalletHistory);

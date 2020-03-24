@@ -3,6 +3,7 @@ var initialState = {
     userRole: {},
     chargeCard: {},
     chargeAtm: {},
+    chargeAtmSuccess: {},
 }
 
 var paymentReducer = (state = initialState, action) => {
@@ -17,6 +18,10 @@ var paymentReducer = (state = initialState, action) => {
         }
         case paymentActionTypes.GET_USER_ROLE:{
             state.userRole = action.result.data
+            return state;
+        }
+        case paymentActionTypes.CHARGE_ATM_SUCCESS:{
+            state.chargeAtmSuccess = action.result
             return state;
         }
         default: {

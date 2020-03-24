@@ -36,21 +36,16 @@ const Routes = [
         isLogged: true
     },
     {
-        path: "/lich-su/lich-su-game.html",
+        path: "/lich-su-game/:slug-g:id",
         exact: true,
         main: () => <HistoryPayToGamePage />,
         isLogged: true
     },
     {
-        path: "/lich-su/lich-su-vi.html",
+        path: "/lich-su-vi/:slug-g:id",
         exact: true,
         main: () => <HistoryPayToWalletPage />,
         isLogged: true
-    },
-    {
-        path: "/test",
-        exact: true,
-        main: () => <Test />,
     },
 ]
 
