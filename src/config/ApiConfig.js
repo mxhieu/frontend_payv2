@@ -1,12 +1,12 @@
 const apiConfig = {};
 
-apiConfig.domain = 'https://dev-api-v2.phoeniz.com/';
+apiConfig.domain = 'https://18c21623.ngrok.io/';
 
 apiConfig.endpoint = {
     login: 'passport/login',
     loginFb: 'passport/loginFB',
     loginGg: 'passport/loginGoogle',
-
+    loginApple: 'passport/loginApple',
     getSlider: 'sliders/get-default-slider',
     getPosts: 'post/get-list',
     getDetailPost: 'post/get-detail/',

@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const LIST_GAME = \"LIST_GAME\";","map":{"version":3,"sources":["C:/reactjs/payv2/myapp/src/actionTypes/gameTypes.js"],"names":["LIST_GAME"],"mappings":"AAAA,OAAO,MAAMA,SAAS,GAAG,WAAlB","sourcesContent":["export const LIST_GAME = \"LIST_GAME\";"]},"metadata":{},"sourceType":"module"}

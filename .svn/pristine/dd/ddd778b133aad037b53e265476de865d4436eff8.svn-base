@@ -1,0 +1,29 @@
+import React, { Component } from 'react'
+import ReactAppleLogin from 'react-apple-login'
+import SocialConfig from "../config/SocialConfig"
+
+class AppleLogin extends Component {
+
+    render() {
+        return (
+            <ReactAppleLogin clientId={SocialConfig.apple.client_id} redirectURI={SocialConfig.apple.redirect_url}
+            responseType={"code id_token"} 
+            responseMode={"fragment"}
+            designProp={
+                {
+                   height: 50,
+                   width: 255,
+                   color: "black",
+                   border: false,
+                   type: "sign-in",
+                   border_radius: 10,
+                   scale: 1,
+                   locale: "vi_VI", 
+                }
+            }
+            />
+        )
+    }
+}
+
+export default AppleLogin;

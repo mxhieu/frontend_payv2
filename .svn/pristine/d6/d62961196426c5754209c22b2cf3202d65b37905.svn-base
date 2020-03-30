@@ -1,0 +1,1 @@
+{"ast":null,"code":"export const LIST_SLIDER = \"LIST_SLIDER\";","map":{"version":3,"sources":["C:/reactjs/payv2/myapp/src/actionTypes/sliderTypes.js"],"names":["LIST_SLIDER"],"mappings":"AAAA,OAAO,MAAMA,WAAW,GAAG,aAApB","sourcesContent":["export const LIST_SLIDER = \"LIST_SLIDER\";"]},"metadata":{},"sourceType":"module"}

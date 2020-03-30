@@ -1,0 +1,9 @@
+0000000000000000000000000000000000000000 53a1145fbb5c9638c2d4130c480727c31d4ce9b5 hieumx <hieumx@100do.com.vn> 1584504779 +0700	commit (initial): init
+53a1145fbb5c9638c2d4130c480727c31d4ce9b5 33b22dc697681a2bea6bbed204c1ef56a37d79ae hieumx <hieumx@100do.com.vn> 1584671723 +0700	commit: update pay to game
+33b22dc697681a2bea6bbed204c1ef56a37d79ae 93b89d9133b3a926bce30c78fef6e6e3104f5c41 hieumx <hieumx@100do.com.vn> 1584672092 +0700	commit (merge): fix conflict
+93b89d9133b3a926bce30c78fef6e6e3104f5c41 71e3c665e55280732f5258bae686a651c9c0764b hieumx <hieumx@100do.com.vn> 1584692757 +0700	commit: update pay to game
+71e3c665e55280732f5258bae686a651c9c0764b fa0796ce80a0d335bb862cb6c4cc75dd25cac65e hieumx <hieumx@100do.com.vn> 1584692781 +0700	pull origin master: Merge made by the 'recursive' strategy.
+fa0796ce80a0d335bb862cb6c4cc75dd25cac65e ac37add7699824f55a0911c8858bab70a4fab09f hieumx <hieumx@100do.com.vn> 1584694352 +0700	pull origin master: Fast-forward
+ac37add7699824f55a0911c8858bab70a4fab09f 2f6ade608f748bd0ec0e41f1adf880163883893b hieumx <hieumx@100do.com.vn> 1584946703 +0700	commit: add history
+2f6ade608f748bd0ec0e41f1adf880163883893b a2b99b6f80b9ed316b9ab3e797d3fba141aba5bc hieumx <hieumx@100do.com.vn> 1584946867 +0700	commit (merge): fix conflict
+a2b99b6f80b9ed316b9ab3e797d3fba141aba5bc 97bc89d3fce1204ccdbe87f869aa3d7563518d96 hieumx <hieumx@100do.com.vn> 1584954801 +0700	commit: update validate
